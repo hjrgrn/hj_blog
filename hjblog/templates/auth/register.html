@@ -1,0 +1,33 @@
+{% extends 'base_layout.html' %}
+
+{% block base_body %}
+    <header class="auth_header">
+        <h1>Register</h1>
+    </header>
+    <div class="upload_form">
+        <form method="post" accept-charset="utf-8">
+            {{ form.hidden_tag() }}
+            <fieldset class="upload_form_fieldset">
+                <p class="upload_form_par">{{ form.username.label() }}</p>
+                {{ form.username(class="upload_form_input", placeholder="Username", autofocus="true") }}
+                <p class="upload_form_par">{{ form.email.label() }}</p>
+                {{ form.email(class="upload_form_input", placeholder="Email") }}
+                <p class="upload_form_par">{{ form.password.label() }}</p>
+                {{ form.password(class="upload_form_input", placeholder="Password") }}
+                <p class="upload_form_par">{{ form.confirm_pass.label() }}</p>
+                {{ form.confirm_pass(class="upload_form_input", placeholder="Confirm Password") }}
+                <!-- TODO: -->
+                <!-- <p class="upload_form_par">Presentation</p> -->
+                <!-- <textarea class="upload_form_textarea" name="presentation"></textarea> -->
+                <p class="upload_form_par">{{ form.city.label() }}</p>
+                {{ form.city(class="upload_form_input", placeholder="City") }}
+
+                {{ form.submit(class="bottone_auth") }}
+            </fieldset>
+        </form>
+    </div>
+    <br></br>
+    <div class="upload_form">
+        <p class="upload_form_par">Do you have an account already? <a href="{{ url_for('auth.login') }}" class="auth_link">Sign In</a></p>
+    </div>
+{% endblock base_body %}

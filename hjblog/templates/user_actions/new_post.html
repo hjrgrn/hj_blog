@@ -1,0 +1,25 @@
+{% extends 'base_layout.html' %}
+
+{% block base_body %}
+    <header class="auth_header">
+        <h1>New Post</h1>
+    </header>
+    <div class="upload_form">
+        <form method="post" accept-charset="utf-8">
+            {{ form.hidden_tag() }}
+            <p class="upload_form_par">{{ form.title.label() }}</p>
+            {{ form.title(class="upload_form_input", placeholder="Title", autofocus="true") }}
+            <br></br>
+            <p class="upload_form_par">{{ form.content.label() }}</p>
+            {{ form.content(class="upload_form_content", placeholder="Content") }}
+            <br></br>
+            <br></br>
+            {{ form.submit(class="bottone_auth") }}
+            <br></br>
+        </form>
+    </div>
+    <br></br>
+    <div class="upload_form">
+        <p class="upload_form_par"><a href="{{ url_for('index') }}" class="auth_link">Go back to homepage.</a></p>
+    </div>
+{% endblock base_body %}

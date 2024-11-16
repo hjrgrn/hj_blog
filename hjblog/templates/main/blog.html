@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="post_wrapper">
+        {% if pages > 0 %}
+            {% if posts%}
+                {% for post in posts %}
+                    <div class="post_container">
+                        <p class="post_card_ids"><a href="#" class="post_card_author">{{ post.username }}</a>   {{ post.posted }}</p>
+                        <hr>
+                        <h3><a class="post_card_h3_link" href="{{ url_for('user.visit_post', index=post.id) }}">{{ post.title }}</a></h3><br></br>
+                        <p>{{ post['content'] }}</p>
+                        <p>{{ post['posted'] }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="post_container">
+                    <h3 class="post_card_h3_error">No more posts are avaible.</h3>
+                </div>
+            {% endif %}
+
+
+            <div class="pagination">
+                {% if prev_pages > 0 %}
+                ...
+                {% endif %}
+                {% if current_page == 0 %}
+                    {% if o > 0 %}
+                        <a class="page_num page_offset" href="{{ url_for('index.blog', index=0, o=o-1) }}">Previous posts</a>
+                    {% endif %}
+                {% endif %}
+
+                {% for page in range(0, pages + 1) %}
+                {% if page >= prev_pages and page < current_page %}
+                    <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                {% elif page == current_page %}
+                    <a class="page_num page_num_main" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                {% elif page > current_page and page <= next_pages %}
+                    <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if next_pages < pages %}
+                ...
+                {% endif %}
+
+                {% if current_page == pages %}
+                    {% if more_posts %}
+                        <a class= "page_num page_offset" href="{{ url_for('index.blog', index=0, o=o+1) }}">More posts</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="post_container">
+                <h3 class="post_card_h3_error">Currently there are no posts to be displayed, please try again later.</h3>
+            </div>
+        {% endif %}
+    </div>
+{% endblock body %}

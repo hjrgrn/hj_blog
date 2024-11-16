@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <header class="presentation">
+        <h1 class="presentation_h1">{{ current_user['username'] }}'s profile</h1>
+        <p class="presentation_par">Here you can change your info.</p>
+    </header>
+    <div class="index-form">
+        <form class="index-form-wrapper" action="{{ url_for('profile.change_username') }}" method="get" accept-charset="utf-8">
+            <p class="index-form-par">Username: {{ current_user['username'] }}</p>
+            <button class="index-form-button">Change</button>
+        </form>
+        <form class="index-form-wrapper" action="{{ url_for('profile.change_email') }}" method="get" accept-charset="utf-8">
+            <p class="index-form-par">Email: {{ current_user['email'] }}</p>
+            <button class="index-form-button">Change</button>
+        </form>
+        <form class="index-form-wrapper" action="{{ url_for('profile.change_password', id=current_user['id']) }}" method="get" accept-charset="utf-8">
+            <p class="index-form-par">Password</p>
+            <button class="index-form-button">Change</button>
+        </form>
+        <form class="index-form-wrapper" action="{{ url_for('profile.change_city', id=current_user['id']) }}" method="get" accept-charset="utf-8">
+            {% if city_name %}
+                <p class="index-form-par">City: {{ city_name }}</p>
+            {% else %}
+                <p class="index-form-par">City: Not yet configured</p>
+            {% endif %}
+            <button class="index-form-button">Change</button>
+        </form>
+        {% if current_user["is_two_factor_authentication_enabled"] %}
+            <form class="index-form-wrapper" action="{{ url_for('profile.disable_two_factor_auth') }}" method="get" accept-charset="utf-8">
+                <p class="index-form-par">Deactivate 2fa</p>
+                <button class="index-form-button">Disable</button>
+            </form>
+        {% else %}
+            <form class="index-form-wrapper" action="{{ url_for('profile.setup_two_factor_auth') }}" method="get" accept-charset="utf-8">
+                <p class="index-form-par">Activate 2fa</p>
+                <button class="index-form-button">Activate</button>
+            </form>
+        {% endif %}
+    </div>
+    <br></br>
+{% endblock body %}

@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="presentation">
+        <h1 class="presentation_h1">HJ's Blog</h1>
+        <p class="presentation_par">Welcome to HJ's Blog.</p>
+    </div>
+
+    <div class="posts_compact">
+        <h2 class="posts_compact_h2">Latest Posts</h2>
+        {% if len > 0 %}
+
+            {% for i in range(0, len) %}
+            <div class="posts_compact_container">
+                <span class="posts_compact_index">{{ i }}</span>
+                <a class="posts_compact_link" href="{{ url_for('user.visit_post', index=posts[i].id) }}">{{ posts[i].title }}</a>
+                <span class="posts_compact_date">{{ posts[i].posted.strftime('%d-%m-%Y') }}</span>
+                <span class="posts_compact_author">{{ posts[i].username }}</span>
+            </div>
+            {% endfor %}
+            <div class="posts_compact_container">
+                <a class="posts_compact_all_posts" href="{{ url_for('index.blog') }}">All posts →</a>
+            </div>
+        {% else %}
+            <span class="posts_compact_error">Currently there are no posts to be displayed, please try again later.</span>
+        {% endif %}
+    </div>
+{% endblock body %}

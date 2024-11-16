@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <header class="presentation">
+        {% if forecasts %}
+            <h1 class="presentation_h1">Weather for {{ forecasts.coordinates.city }}</h1>
+            <p class="presentation_par">Weather predictions for {{ forecasts.coordinates.city }}.</p>
+        {% else %}
+            <h1 class="presentation_h1">Weather</h1>
+            <p class="presentation_par">You haven't registered a city yet, <a class="presentation_anchor" href="{{ url_for('profile.change_city', id=current_user['id']) }}">do it now!</a></p>
+        {% endif %}
+    </header>
+
+    <div>
+        {% if forecasts %}
+            <h2 class="forecast_title">Today</h2>
+            <div class="forecast_container">
+                {% for hf in forecasts.hourly_forecast %}
+                    {% if forecasts.hourly_forecast.index(hf)%3 == 0 %}
+                        <div class="forecast_item">
+                            <p>time: {{ hf.time }}</p>
+                            <p>temp: {{ hf.temperature }} C°</p>
+                            <p>rel humidity: {{ hf.relative_humidity }} %</p>
+                            <p>pressure: {{ hf.surface_pressure }} hPa</p>
+                            <p>cloud cover: {{ hf.cloud_cover }} %</p>
+                            <p>wind speed: {{ hf.wind_speed }} km/h</p>
+                            <p>precipitation: {{ hf.precipitation_probability }} mm</p>
+                            <p>weather: {{ hf.get_weather() }}</p>
+
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+            </div>
+
+            <h2 class="forecast_title">This Week</h2>
+            <div class="forecast_container">
+                {% for df in forecasts.daily_forecast %}
+                    <div class="forecast_item">
+                        <p>day: {{ df.time }}</p>
+                        <p>temp max: {{ df.temperature_max }} C°</p>
+                        <p>temp min: {{ df.temperature_min }} C°</p>
+                        <p>precipitation: {{ df.precipitation_probability }} %</p>
+                        <p>sunrise: {{ df.sunrise }}</p>
+                        <p>sunset: {{ df.sunset }}</p>
+                        <p>weather: {{ df.get_weather() }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        {% endif %}
+    </div>
+
+    <div class="upload_form">
+        <form method="post" accept-charset="utf-8">
+            {{ form.hidden_tag() }}
+            <fieldset class="upload_form_fieldset">
+                <p class="upload_form_par">Select another city</p>
+                {{ form.city(class="upload_form_input", placeholder="City") }}
+                <p class="upload_form_par">If there are multiple cities with the same name provide latitude and longitude.</p>
+                <p class="upload_form_par">Latitude(not required)</p>
+                {{ form.latitude(class="upload_form_input", placeholder="Latitude") }}
+                <p class="upload_form_par">Longitude(not required)</p>
+                {{ form.longitude(class="upload_form_input", placeholder="Longitude") }}
+                {{ form.submit(class="bottone_auth") }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock body %}

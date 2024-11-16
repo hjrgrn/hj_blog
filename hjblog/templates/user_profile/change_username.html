@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <header class="auth_header">
+        <h1>Change Username</h1>
+    </header>
+    <div class="upload_form">
+        <form method="post" accept-charset="utf-8">
+            {{ form.hidden_tag() }}
+            <fieldset class="upload_form_fieldset">
+                <p class="upload_form_par">Old username: {{ current_user["username"] }}</p>
+                {{ form.username(class="upload_form_input", placeholder="New Username", autofocus="true") }}
+                {{ form.submit(class="bottone_auth") }}
+            </fieldset>
+        </form>
+    </div>
+    <div class="upload_form">
+        <p class="upload_form_par">Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
+    </div>
+
+{% endblock body %}

@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="visit_post_container">
+        <p class="visit_post_date">{{ post.posted.strftime('%d-%m-%Y') }} <a href="#" class="visit_post_author">{{ post.username }}</a></p>
+        <h1 class="visit_post_h1">{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+        {% if identified %}
+            <br></br>
+            <button onclick="modalShow('modal-delete')" class="visit_post_delete_post">Delete this post</button>
+            <br></br>
+            {% include './includes/modal_delete_post.html' %}
+        {% endif %}
+        {% if current_user %}
+            <a class="visit_post_delete_post" href="{{ url_for('user.comment_post', index=post.id) }}">Comment</a>
+        {% endif %}
+        <br></br>
+        <div class="visit_post_comment">
+            <h2 class="visit_post_comment_h2">Comments</h2>
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="visit_post_comment_container">
+                        <p>{{ comment.content }}</p>
+                        {% if current_user['id'] == post['author_id'] or current_user['id'] == comment['author_id'] %}
+                            <span class="visit_post_delete_comment" onclick="modalShow('modal-delete-comment')">Delete comment</span>
+                            {% include './includes/modal_delete_comment.html' %}
+                        {% endif %}
+                        <span class="visit_post_comment_date">{{ comment.written }}</span>
+                        <span class="visit_post_comment_field">author: </span><a href="#" class="visit_post_comment_link">{{ comment.username }}</a>
+                    </div>
+                {% endfor %}
+
+                <div class="pagination">
+                    {% if prev_pages > 0 %}
+                        ...
+                    {% endif %}
+
+                    {% if current_page == 0 %}
+                        {% if o > 0 %}
+                            <a class="page_num page_offset" href="{{ url_for('user.all_comments', post_id=post['id'], o=o-1, index=0) }}">Previous comments</a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for page in range(0, pages + 1) %}
+                        {% if page >= prev_pages and page < current_page %}
+                            <a class="page_num" href="{{ url_for('user.all_comments', index=page, post_id=post.id, o=o) }}">{{ page }}</a>
+                        {% elif page == current_page %}
+                            <a class="page_num page_num_main" href="{{ url_for('user.all_comments', index=page, post_id=post.id, o=o) }}">{{ page }}</a>
+                        {% elif page > current_page and page <= next_pages %}
+                            <a class="page_num" href="{{ url_for('user.all_comments', index=page, post_id=post.id, o=o) }}">{{ page }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if next_pages < pages %}
+                        ...
+                    {% endif %}
+
+                    {% if current_page == pages %}
+                        {% if more_comments %}
+                            <a class="page_num page_offset" href="{{ url_for('user.all_comments', post_id=post['id'], o=o+1, index=0) }}">More commets</a>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+            {% else %}
+                <!-- TODO: -->
+            {% endif %}
+        </div>
+    </div>
+{% endblock body %}

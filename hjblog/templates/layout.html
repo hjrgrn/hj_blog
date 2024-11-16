@@ -1,0 +1,65 @@
+{% extends 'base_layout.html' %}
+
+
+
+{% block base_body %}
+<nav class="nav_bar">
+    <div class="nav_bar_left_items">
+        <div class="link_container">
+            <a class="link" href="{{ url_for('index') }}">Home</a>
+        </div>
+        <div class="link_container">
+            <a class="link" href="{{ url_for('index.blog') }}">Blog</a>
+        </div>
+        <div class="link_container">
+            <a class="donate_link link" href="#">Donate</a>
+        </div>
+    </div>
+
+    <div class="nav_bar_right_items">
+        {% if current_user %}
+            <!-- TODO: Refactoring: we are going to do a drop down menu -->
+            <div class="link_container">
+                <a href="{{ url_for('profile.manage_profile') }}" class="link">{{ current_user['username'] }}</a>
+            </div>
+            <div class="link_container">
+                <a href="{{ url_for('auth.logout') }}" class="link">Log Out</a>
+            </div>
+            <div class="link_container">
+                <a href="{{ url_for('user.weather') }}" class="link">Weather</a>
+            </div>
+            {% if current_user.is_admin %}
+                <div class="link_container">
+                    <a href="{{ url_for('user.new_post') }}" class="link">Post</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="link_container">
+                <a href="{{ url_for('auth.register') }}" class="link">Register</a>
+            </div>
+            <div class="link_container">
+                <a href="{{ url_for('auth.login') }}" class="link">Log In</a>
+            </div>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="body">
+{% block body %}{% endblock body %}
+</div>
+
+
+
+<div class="footer_wrapper">
+    <footer class="footer_main">
+        <a class="anchor_footer" href="{{ url_for('index') }}">Home</a>
+        <a class="anchor_footer" href="#">About</a>
+        <a class="anchor_footer" href="#">Donate</a>
+        <a class="anchor_footer" href="#">TODO</a>
+        <a class="anchor_footer" href="#">TODO</a>
+        <a class="anchor_footer" href="#">TODO</a>
+    </footer>
+</div>
+
+
+{% endblock base_body %}

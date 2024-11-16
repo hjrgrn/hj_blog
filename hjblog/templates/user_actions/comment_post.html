@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="visit_post_container">
+        <p class="visit_post_date">{{ date.strftime('%d-%m-%Y') }} <a href="#" class="visit_post_author">{{ username }}</a></p>
+        <h1 class="visit_post_h1">{{ title }}</h1>
+        <p>{{ content }}</p>
+
+        <br></br>
+        <div>
+            <form method="post" accept-charset="utf-8">
+                {{ form.hidden_tag() }}
+                <p>Write your comment here:</p>
+                {{ form.content(autofocus=True, class="comment_form_content", placeholder="Comment") }}
+                <br></br>
+                {{ form.submit(class="visit_post_delete_post") }}
+                <br></br>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}

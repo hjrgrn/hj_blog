@@ -1,0 +1,11 @@
+TODO.md
+instance/
+logs
+config.py
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.webassets-cache
+NOTES.md

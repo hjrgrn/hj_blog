@@ -1,0 +1,50 @@
+[project]
+name = "hjblog"
+version = "0.1.0"
+authors = [
+    { name="hjrgrn", email="187955624+hjrgrn@users.noreply.github.com" },
+]
+maintainers = [
+    { name="hjrgrn", email="187955624+hjrgrn@users.noreply.github.com" },
+]
+description = "A Flask blog written for practice purpose"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    # "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "flask",
+    "Flask-WTF",
+    "WTForms",
+    "email-validator",
+    "pyotp",
+    "qrcode",
+    "requests"
+]
+[project.optional-dependencies]
+neovim = [
+    "pynvim"
+]
+test = [
+    "pytest",
+    "coverage"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/hjrgrn/hj_blog.git"
+
+# NOTE: setuptools does not distinguish packages from regular directories
+# in your project if the directory is names something other that "src",
+# so you need to specify manually in which directory your
+# project is contained, in my case it was being confused by the instance
+# directory
+[tool.setuptools]
+py-modules = ["hjblog"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
