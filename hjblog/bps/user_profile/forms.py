@@ -1,6 +1,15 @@
+import re
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileSize
 from wtforms import PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, EqualTo, Length, Optional, Regexp, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    EqualTo,
+    Length,
+    Optional,
+    Regexp,
+    ValidationError,
+)
 
 from hjblog.db import get_db
 
@@ -30,6 +39,7 @@ class ChangeName(FlaskForm):
 
     submit = SubmitField()
 
+
 class ChangeCity(FlaskForm):
     city = StringField(
         label="City",
@@ -40,8 +50,8 @@ class ChangeCity(FlaskForm):
                 message="The city name needs to be in between 1 and 169 characters.",
             ),
             # TODO: we need to refine this, include wierd char like Å
-            Regexp(regex=r"[a-zA-Z\s]{1,169}", message="Unsupported characters."),
-            Optional()
+            Regexp(regex=r"^[a-zA-Z\s]{1,169}$", message="Unsupported characters."),
+            Optional(),
         ],
     )
 
@@ -95,6 +105,29 @@ class ChangePassword(FlaskForm):
             ),
             EqualTo("password", message="You typed in two different passwords."),
             DataRequired(message=DATA_REQUIRED),
+        ],
+    )
+
+    submit = SubmitField()
+
+
+class ChangePicture(FlaskForm):
+    def validate_picture(self, to_validate):
+        filename = to_validate.data.filename
+        res = re.search(r"^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$", filename)
+        if res is None:
+            raise ValidationError(
+                'File name needs to conform this regex: "^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$"'
+            )
+
+    # NOTE: `FileAllowed` only validates that the name of the file presents `.<allowed_extension>`
+    # as suffix, doesn't actually validate the file type.
+    # TODO: make size configurable
+    picture = FileField(
+        "Update Profile Picture",
+        validators=[
+            # FileAllowed(["png", "jpg", "jpeg"]),
+            FileSize(min_size=1, max_size=10485760),
         ],
     )
 

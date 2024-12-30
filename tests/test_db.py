@@ -1,19 +1,18 @@
 import sqlite3
-from flask import Flask
-from flask.testing import FlaskCliRunner
+from flask.testing import FlaskCliRunner, FlaskClient
 import pytest
 
 from hjblog.db import get_db
 
 
-def test_get_close_db(app: Flask):
+def test_get_close_db(client: FlaskClient):
     """We test that in the same `app_context` the same
     connection to the database is returned.
     We make sure that when `app_context` is dropped the connection
     to the database is closed, so trying to interact with it will
     raise `sqlite3.ProgrammingError`, 'closed' will be in `error.value`.
     """
-    with app.app_context():
+    with client.application.test_request_context():
         db = get_db()
         assert db is get_db()
 

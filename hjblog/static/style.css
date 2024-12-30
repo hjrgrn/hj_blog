@@ -108,6 +108,14 @@ body {
 .nav_bar_right_items {
     padding-right: 20px;
 }
+.nav_bar_right_items .img-container {
+    display: inline-block;
+}
+.nav_bar_right_items .img-container img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
 .link {
 	color: var(--grey1);
 	text-decoration: none;
@@ -145,7 +153,7 @@ body {
 .nav-dropdown {
     position: relative;
     display: inline-block;
-    float: right;
+    /* float: right; */
 	transition: all .5s ease-in-out;
 }
 
@@ -183,8 +191,8 @@ body {
 .nav-dropdown:hover .nav-dropdown-content {display: block;}
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
-.nav-dropdown:hover .nav-dropbtn {
-}
+/* .nav-dropdown:hover .nav-dropbtn { */
+/* } */
 
 
 
@@ -254,10 +262,10 @@ body {
 	font-weight: 400;
 	/* font-weight: 30; */
 }
-.modal-delete-body {
-	/* font-size: 25px; */
-	/* font-weight: 30; */
-}
+/* .modal-delete-body { */
+/* 	/1* font-size: 25px; *1/ */
+/* 	/1* font-weight: 30; *1/ */
+/* } */
 
 
 
@@ -378,16 +386,29 @@ body {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 60px;
+
+    text-align: center;
 }
-.upload_form_fieldset {
+.upload_form .upload-file {
+    /* TODO: */
+	background-color: var(--black0);
+	color: var(--grey1);
+    border: none;
+}
+.upload_form .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+.upload_form fieldset {
     margin-top: 10px;
     margin-bottom: 30px;
     border: none;
 }
-.upload_form_par {
+.upload_form p {
 	font-size: 18px;
 }
-.upload_form_input {
+.upload_form input {
 
     border-radius: 10px;
     border-color: var(--black0);
@@ -569,7 +590,7 @@ body {
 	top: 50px;
 
 	font-size: 25px;
-	font-weigth: 30;
+	font-weight: 30;
 	text-align: center;
 
 	padding: 20px 6px 20px 6px;
@@ -673,40 +694,45 @@ body {
 	text-decoration: none;
 }
 
-/* Body */
-.body {
-}
-
 
 /* Index layout */
 /* Presentation */
 .presentation {
-    height: 300px;
     background-color: var(--black3);
 	border-radius: 10px;
     margin: 100px auto 10px auto;
     padding: 10px;
 }
-.presentation_h1 {
+.presentation h1 {
     color: var(--grey1);
     margin-left: 10px;
     font-size: 60px;
 	font-weight: 400;
 }
-.presentation_anchor {
+.presentation a {
     color: var(--magenta0);
     text-decoration: none;
 	transition: all 1s ease-in-out;
 }
-.presentation_anchor:hover {
+.presentation a:hover {
     color: var(--magenta1);
     text-decoration: underline;
 	transition: all 1s ease-in-out;
 }
-.presentation_par {
+.presentation p {
     color: var(--grey4);
     margin-left: 10px;
     font-size: 20px;
+}
+.presentation p:last-of-type {
+    margin-bottom: 30px;
+}
+.presentation .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-left: 20px;
+    margin-top: 20px;
 }
 /* Posts */
 /* Post Compacts */
@@ -855,11 +881,6 @@ body {
 	transition: all .5s ease-in-out;
 }
 /* Visit Post comments */
-.visit_post_comment {
-	/* border-radius: 10px; */
-    /* margin-bottom: 10px; */
-    /* padding: 10px; */
-}
 .visit_post_comment_container {
 	/* border-radius: 10px; */
 	text-align: left;
@@ -939,31 +960,13 @@ body {
     margin-right: auto;
     margin-bottom: 20px;
 }
-.index-form-wrapper {
+.index-form form {
     margin-bottom: 30px;
 }
-.index-form-par {
+.index-form p {
 	font-size: 18px;
 }
-.index-form-img {
-    width: 250px;
-    height: 250px;
-}
-.index-form-input {
-    border-radius: 10px;
-    border-color: var(--black0);
-
-    background-color: var(--grey3);
-    color: var(--grey1);
-
-	font-size: 18px;
-
-    padding: 4px;
-
-    width: 90%;
-    height: 40px;
-}
-.index-form-button {
+.index-form button {
     background-image: linear-gradient(to right, var(--grey0), var(--black1));
 	color: var(--blue1);
 	box-shadow: rgba(0, 0, 0, 0.30) 6px 3px 6px 3px;
@@ -978,7 +981,7 @@ body {
     height: 40px;
     cursor: pointer;
 }
-.index-form-button:hover {
+.index-form button:hover {
     color: var(--black1);
     background-image: linear-gradient(to right, var(--blue1), var(--blue6));
 	transition: all .5s ease-in-out;

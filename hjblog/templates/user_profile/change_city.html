@@ -7,19 +7,19 @@
     <div class="upload_form">
         <form method="post" accept-charset="utf-8">
             {{ form.hidden_tag() }}
-            <fieldset class="upload_form_fieldset">
+            <fieldset>
                 {% if city_name %}
-                    <p class="upload_form_par">Old city: {{ city_name }}</p>
-                    {{ form.city(class="upload_form_input", placeholder=city_name, autofocus="true") }}
+                    <p>Old city: {{ city_name }}</p>
+                    {{ form.city(placeholder=city_name, autofocus="true") }}
                 {% else %}
-                    <p class="upload_form_par">Old city: Not yet configured</p>
-                    {{ form.city(class="upload_form_input", placeholder="New City", autofocus="true") }}
+                    <p>Old city: Not yet configured</p>
+                    {{ form.city(placeholder="New City", autofocus="true") }}
                 {% endif %}
                 {{ form.submit(class="bottone_auth") }}
             </fieldset>
         </form>
     </div>
     <div class="upload_form">
-        <p class="upload_form_par">Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
+        <p>Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
     </div>
 {% endblock body %}

@@ -7,14 +7,14 @@
     <div class="upload_form">
         <form method="post" accept-charset="utf-8">
             {{ form.hidden_tag() }}
-            <fieldset class="upload_form_fieldset">
-                <p class="upload_form_par">Old email: {{ current_user["email"] }}</p>
-                {{ form.email(class="upload_form_input", placeholder="New Email", autofocus="true") }}
+            <fieldset>
+                <p>Old email: {{ current_user["email"] }}</p>
+                {{ form.email(placeholder="New Email", autofocus="true") }}
                 {{ form.submit(class="bottone_auth") }}
             </fieldset>
         </form>
     </div>
     <div class="upload_form">
-        <p class="upload_form_par">Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
+        <p>Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
     </div>
 {% endblock body %}

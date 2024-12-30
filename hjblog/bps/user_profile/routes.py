@@ -15,12 +15,17 @@ import pyotp
 
 from hjblog.auxiliaries import login_required
 from hjblog.bps.user_actions.auxiliaries import Coordinates
-from hjblog.bps.user_profile.auxiliaries import get_b64encoded_qr_image
+from hjblog.bps.user_profile.auxiliaries import (
+    get_b64encoded_qr_image,
+    get_profile_pic,
+    save_picture,
+)
 from hjblog.bps.user_profile.forms import (
     ChangeCity,
     ChangeEmail,
     ChangeName,
     ChangePassword,
+    ChangePicture,
 )
 from hjblog.db import get_db
 
@@ -34,9 +39,8 @@ def manage_profile():
     """View used by the user to manage the profile."""
     db = get_db()
     user = g.get("user", None)
-    if user is None:
-        # this should not happen becouse of `@login_required`
-        abort(500)
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
     city_id = user["city_id"]
     city_name = None
     if city_id is not None:
@@ -51,7 +55,55 @@ def manage_profile():
             logging.exception(e)
             abort(500)
     return render_template(
-        "user_profile/manage_profile.html", current_user=user, city_name=city_name
+        "user_profile/manage_profile.html",
+        current_user=user,
+        city_name=city_name,
+        profile_pic=profile_pic,
+    )
+
+
+@bp.route("/change_picture", methods=["POST", "GET"])
+@login_required
+def change_picture():
+    """View used to change user's profile picture."""
+    db = get_db()
+    user = g.get("user", None)
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
+
+    form = ChangePicture()
+
+    if form.validate_on_submit():
+        if form.picture.data:
+            try:
+                pic_name = save_picture(user["profile_pic"], form.picture.data)
+                db.execute(
+                    r"UPDATE users SET profile_pic = ? WHERE (id = ?)",
+                    (pic_name, user["id"]),
+                )
+                db.commit()
+            except sqlite3.Error as e:
+                logging.exception(e)
+                abort(500)
+            except Exception as e:
+                # Unexpected behaviour
+                logging.exception(e)
+                abort(500)
+        flash(
+            "You have updated your profile picture correctly.", category="alert-success"
+        )
+        return redirect(url_for("profile.manage_profile"))
+
+    if form.errors != {}:
+        for error in form.errors.values():
+            flash(f"{error[0]}", category="alert-danger")
+        return redirect(url_for("profile.manage_profile"))
+
+    return render_template(
+        "user_profile/change_picture.html",
+        current_user=user,
+        profile_pic=profile_pic,
+        form=form,
     )
 
 
@@ -60,9 +112,8 @@ def manage_profile():
 def change_city():
     """View used to change user's city"""
     user = g.get("user", None)
-    if user is None:
-        # This should not happen
-        return redirect(url_for("index"))
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
     city_id = user["city_id"]
     city_name = None
 
@@ -106,7 +157,7 @@ def change_city():
             # Unexpected behaviour
             logging.exception(e)
             abort(500)
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
     else:
         if city_id is not None:
             try:
@@ -120,11 +171,17 @@ def change_city():
                 logging.exception(e)
                 abort(500)
 
+    if form.errors != {}:
+        for error in form.errors.values():
+            flash(f"{error[0]}", category="alert-danger")
+        return redirect(url_for("profile.manage_profile"))
+
     return render_template(
         "user_profile/change_city.html",
         current_user=user,
         form=form,
         city_name=city_name,
+        profile_pic=profile_pic,
     )
 
 
@@ -133,9 +190,8 @@ def change_city():
 def change_username():
     """View used to change username"""
     user = g.get("user", None)
-    if user is None:
-        # This should not happen
-        return redirect(url_for("index"))
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
 
     form = ChangeName()
     if form.validate_on_submit():
@@ -154,15 +210,18 @@ def change_username():
             logging.exception(e)
             abort(500)
         flash("Username updated correctly.", category="alert-success")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     if form.errors != {}:
         for error in form.errors.values():
             flash(f"{error[0]}", category="alert-danger")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     return render_template(
-        "user_profile/change_username.html", current_user=user, form=form
+        "user_profile/change_username.html",
+        current_user=user,
+        form=form,
+        profile_pic=profile_pic,
     )
 
 
@@ -171,9 +230,8 @@ def change_username():
 def change_email():
     """View used to change email"""
     user = g.get("user", None)
-    if user is None:
-        # This should not happen
-        return redirect(url_for("index"))
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
 
     form = ChangeEmail()
     if form.validate_on_submit():
@@ -192,15 +250,18 @@ def change_email():
             logging.exception(e)
             abort(500)
         flash("Email updated correctly.", category="alert-success")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     if form.errors != {}:
         for error in form.errors.values():
             flash(f"{error[0]}", category="alert-danger")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     return render_template(
-        "user_profile/change_email.html", current_user=user, form=form
+        "user_profile/change_email.html",
+        current_user=user,
+        form=form,
+        profile_pic=profile_pic,
     )
 
 
@@ -209,9 +270,8 @@ def change_email():
 def change_password():
     """View used to change password"""
     user = g.get("user", None)
-    if user is None:
-        # This should not happen
-        return redirect(url_for("index"))
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
 
     form = ChangePassword()
     if form.validate_on_submit():
@@ -231,15 +291,18 @@ def change_password():
             logging.exception(e)
             abort(500)
         flash("Password updated correctly.", category="alert-success")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     if form.errors != {}:
         for error in form.errors.values():
             flash(f"{error[0]}", category="alert-danger")
-        return redirect(url_for("profile.manage_profile", id=user["id"]))
+        return redirect(url_for("profile.manage_profile"))
 
     return render_template(
-        "user_profile/change_password.html", current_user=user, form=form
+        "user_profile/change_password.html",
+        current_user=user,
+        form=form,
+        profile_pic=profile_pic,
     )
 
 
@@ -249,9 +312,8 @@ def setup_two_factor_auth():
     """View used to setup 2fa"""
     # TODO: ask the user for a totp before enabling 2fs
     user = g.get("user", None)
-    if user is None:
-        # this should not happen
-        abort(500)
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
 
     if user["is_two_factor_authentication_enabled"] == True:
         flash("2fa is already enabled for your account.", category="alert-danger")
@@ -285,6 +347,7 @@ def setup_two_factor_auth():
         current_user=user,
         secret=secret,
         qr_image=qr_image,
+        profile_pic=profile_pic,
     )
 
 
@@ -318,4 +381,4 @@ def disable_two_factor_auth():
 
     flash("Congratulation you have disabled 2fa.", category="alert-success")
 
-    return redirect(url_for("profile.manage_profile", id=user["id"]))
+    return redirect(url_for("profile.manage_profile"))

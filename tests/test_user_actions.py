@@ -1,4 +1,3 @@
-from flask import Flask
 from flask.testing import FlaskClient
 
 from auxiliaries import check_navbar
@@ -6,7 +5,7 @@ from conftest import AuthActions
 from hjblog.db import get_db
 
 
-def test_new_post(client: FlaskClient, auth: AuthActions, app: Flask):
+def test_new_post(client: FlaskClient, auth: AuthActions):
     """New Post should:
     - have a working navbar
     - deny access(302 redirecting to login page) if you are not logged in(both GET and POST)
@@ -39,7 +38,7 @@ def test_new_post(client: FlaskClient, auth: AuthActions, app: Flask):
         "/user/new_post", data={"title": title, "content": content, "submit": "Post"}
     )
     # check post has been registered
-    with app.app_context():
+    with client.application.test_request_context():
         db = get_db()
         entry = db.execute("SELECT * FROM posts WHERE (title = ?)", (title,)).fetchone()
         assert entry is not None
@@ -99,21 +98,21 @@ def test_visit_post(client: FlaskClient, auth: AuthActions):
     )
 
 
-def test_delete_post(client: FlaskClient, auth: AuthActions, app: Flask):
+def test_delete_post(client: FlaskClient, auth: AuthActions):
     """Delete post should:
     - delete the post if the user has the right credentials and be redirected to '/', the status should be 302
     - responds 404 NOT FOUND to a GET request to a post that does not exists
     - refuse let you access the route if you are not a registerd user(admin)
     """
     # delete post as admin
-    with app.app_context():
+    with client.application.test_request_context():
         db = get_db()
         entry = db.execute("SELECT * FROM posts WHERE (id = ?)", (1,)).fetchone()
         assert entry is not None
     auth.login(username="admin", password="prova")
     res = client.get("/user/delete_post/1")
     assert res.status_code == 302
-    with app.app_context():
+    with client.application.test_request_context():
         db = get_db()
         entry = db.execute("SELECT * FROM posts WHERE (id = ?)", (1,)).fetchone()
         assert entry is None
