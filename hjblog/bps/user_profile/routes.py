@@ -8,6 +8,7 @@ from flask import (
     g,
     redirect,
     render_template,
+    request,
     url_for,
 )
 from werkzeug.security import generate_password_hash

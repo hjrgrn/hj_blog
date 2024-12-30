@@ -1,3 +1,4 @@
+import os
 from flask import url_for
 from flask.testing import FlaskClient
 
@@ -252,3 +253,74 @@ def test_change_city(client: FlaskClient, auth: AuthActions):
             "SELECT name FROM cities WHERE id = ?", (city_id,)
         ).fetchone()["name"]
         assert stored_city == city
+
+
+def test_change_picture(client: FlaskClient, auth: AuthActions):
+    """Change Picture should:
+    - having a working navbar
+    - refuse the connection if not logged in. 302 redirect to login, both get and post
+    - accept a get request if logged in, 200.
+    - a link for going back to `manage_profile` route
+    - display old picture, the default `anonymous_user.png` is a picture hasn't been provided.
+    - update to a new picture using the post route
+    - new picture being displayed
+    """
+    check_navbar(client, auth)
+
+    res = client.get("/change_picture")
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/auth/login"
+    res = client.post("/change_picture")
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/auth/login"
+
+    auth.login(username="admin", password="prova")
+    res = client.get("/change_picture")
+    assert res.status_code == 200
+
+    with client.application.test_request_context():
+        url = url_for("profile.manage_profile")
+        html_tag = f'<a href="{url}" class="auth_link">profile</a>'.encode("utf-8")
+        assert html_tag in res.data
+
+    # No picture provided
+    with client.application.test_request_context():
+        db = get_db()
+        profile_pic_name = db.execute(
+            "SELECT profile_pic FROM users WHERE username = ?", ("admin",)
+        ).fetchone()["profile_pic"]
+        assert profile_pic_name is None
+    assert (
+        b'<img src="/static/default_files/anonymous_user.png" alt="profile picture"/>'
+        in res.data
+    )
+
+    res = client.post(
+        "/change_picture",
+        data={
+            "picture": (
+                open("hjblog/static/default_files/anonymous_user.png", "rb"),
+                "anonymous_user.png",
+            ),
+            "submit": "Submit",
+        },
+    )
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/manage_profile"
+    pic_name = None
+    with client.application.test_request_context():
+        db = get_db()
+        pic_name = db.execute(
+            "SELECT profile_pic FROM users WHERE username = ?", ("admin",)
+        ).fetchone()["profile_pic"]
+        assert pic_name is not None
+        res = client.get("/manage_profile")
+        assert b"You have updated your profile picture correctly" in res.data
+        # New picture is being displayed
+        assert url_for("static", filename="profile_pics/" + pic_name).encode("utf-8") in res.data
+
+    # Cleanup
+    path = os.path.join(os.curdir, "hjblog", "static", "profile_pics", pic_name)
+    os.remove(path)
+
+
