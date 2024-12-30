@@ -14,11 +14,19 @@ The provided configuration files will run the application on the local machine.
 On Ubuntu 24.04 based OSes:
 
 ```bash
+# Install Venv
 sudo apt install python3-venv
+
+# Create a virtual environment and source it
 python3.12 -m venv <PATH_TO_ENV>
 source <PATH_TO_ENV>/bin/activate
+# Upgrade Pip
 pip install --upgrade pip
-# Without [neovim] if you don't use neovim
+
+# Clone the repo and install
+git clone 'https://github.com/hjrgrn/hj_blog.git'
+cd hj_blog/
+# Without `neovim,` if you don't use neovim
 pip install -e .[neovim,test]
 ```
 
