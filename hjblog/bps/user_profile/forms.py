@@ -114,7 +114,7 @@ class ChangePassword(FlaskForm):
 class ChangePicture(FlaskForm):
     def validate_picture(self, to_validate):
         filename = to_validate.data.filename
-        res = re.search(r"^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$", filename)
+        res = re.search(r"^[a-zA-Z0-9_-]{1,50}\.(png|jpg|jpeg)$", filename)
         if res is None:
             raise ValidationError(
                 'File name needs to conform this regex: "^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$"'
