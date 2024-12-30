@@ -22,7 +22,7 @@ dependencies = [
     "WTForms",
     "email-validator",
     "pyotp",
-    "qrcode",
+    "qrcode[pil]",
     "requests"
 ]
 [project.optional-dependencies]

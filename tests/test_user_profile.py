@@ -324,3 +324,42 @@ def test_change_picture(client: FlaskClient, auth: AuthActions):
     os.remove(path)
 
 
+def test_2fa(client: FlaskClient, auth: AuthActions):
+    """Functionality for 2FA should:
+    - refuse the connection if not logged in. 302 redirect to login
+    - respond 405 to post request
+    - not allow you to disable 2fa if it's already disabled
+    - enables 2fa if not already enabled
+    - not allow you to enable 2fa if it's already enabled
+    - disable 2fa if not already disabled
+    """
+    res = client.get("/setup-2fa")
+    check_navbar(client, auth)
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/auth/login"
+    res = client.post("/setup-2fa")
+    assert res.status_code == 405
+    res = client.get("/disable-2fa")
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/auth/login"
+    res = client.post("/disable-2fa")
+    assert res.status_code == 405
+
+    auth.login(username="admin", password="prova")
+    _ = client.get("/disable-2fa")
+    res = client.get("/manage_profile")
+    assert b"2fa is already disabled for your account." in res.data
+
+    _ = client.get("/setup-2fa")
+    res = client.get("/manage_profile")
+    # link has changed to `/disable-2fa`
+    assert b'<form action="/disable-2fa" method="get" accept-charset="utf-8">' in res.data
+
+    _ = client.get("/setup-2fa")
+    res = client.get("/manage_profile")
+    assert b"2fa is already enabled for your account." in res.data
+
+    _ = client.get("/disable-2fa")
+    res = client.get("/manage_profile")
+    # link has changed to `/setup-2fa`
+    assert b'<form action="/setup-2fa" method="get" accept-charset="utf-8">' in res.data
