@@ -2,14 +2,17 @@
 
 {% block body %}
     <header class="auth_header">
-        <h1>Change Username</h1>
+        <h1>Change Picture</h1>
     </header>
     <div class="upload_form">
-        <form method="post" accept-charset="utf-8">
+        <p>Current picture</p>
+        <img class="profile-picture" src="{{ profile_pic }}" alt="profile picture"/>
+
+        <form method="post" enctype="multipart/form-data" accept-charset="utf-8">
             {{ form.hidden_tag() }}
             <fieldset>
-                <p>Old username: {{ current_user["username"] }}</p>
-                {{ form.username(placeholder="New Username", autofocus="true") }}
+                <p>{{ form.picture.label() }}</p>
+                {{ form.picture(class="upload-file") }}
                 {{ form.submit(class="bottone_auth") }}
             </fieldset>
         </form>

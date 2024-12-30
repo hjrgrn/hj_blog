@@ -33,6 +33,11 @@
                     <a href="{{ url_for('user.new_post') }}" class="link">Post</a>
                 </div>
             {% endif %}
+            {% if profile_pic %}
+                <div class="img-container">
+                    <img src="{{ profile_pic }}" alt="profile picture"/>
+                </div>
+            {% endif %}
         {% else %}
             <div class="link_container">
                 <a href="{{ url_for('auth.register') }}" class="link">Register</a>

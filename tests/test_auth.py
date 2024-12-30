@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, g, session
+from flask import g, session
 from flask.testing import FlaskClient
 import pytest
 
@@ -7,7 +7,7 @@ from hjblog.db import get_db
 from conftest import AuthActions
 
 
-def test_register(client: FlaskClient, app: Flask):
+def test_register(client: FlaskClient):
     """Register route should:
     - respond with a 200 OK to a GET req while we are not logged in.
     - on POST with valid data redirect you to `/` and loggs you in.
@@ -47,7 +47,7 @@ def test_register(client: FlaskClient, app: Flask):
     res = client.get("/auth/register")
     assert res.location == "/"
 
-    with app.app_context():
+    with client.application.test_request_context():
         # testig the user have been registered after the post requet
         db = get_db()
         test_user: sqlite3.Row = db.execute(
@@ -139,7 +139,7 @@ def test_login(client: FlaskClient, auth: AuthActions):
     assert client.get("/auth/login").location == "/"
 
 
-def test_logout(client: FlaskClient, auth):
+def test_logout(client: FlaskClient, auth: AuthActions):
     """Logout route should:
     - respond with a 302 OK to a GET req while you are logged in
     - redirect you to '/' after loggin out

@@ -13,6 +13,7 @@ from hjblog.bps.main.globals import MAX_PER_PAGE, PAGE_SPAN
 from hjblog.bps.main.helpers import get_posts
 from hjblog.bps.general_auxiliaries.auxiliaries import get_indexes, get_offset
 
+from hjblog.bps.user_profile.auxiliaries import get_profile_pic
 from hjblog.db import get_db
 
 
@@ -25,6 +26,10 @@ def index():
     """Home route"""
 
     db = get_db()
+    user = g.get("user", None)
+    profile_pic = None
+    if user is not None:
+        profile_pic = get_profile_pic(user["profile_pic"])
 
     posts = db.execute(
         "SELECT users.username, posts.id, posts.title, posts.content, posts.path_to_file, posts.posted FROM posts JOIN users ON (users.id = posts.author_id) ORDER BY posts.posted DESC, posts.id DESC LIMIT 7"
@@ -33,9 +38,10 @@ def index():
     return render_template(
         "main/index.html",
         title="Home",
-        current_user=g.user,
+        current_user=user,
         posts=posts,
         len=len(posts),
+        profile_pic=profile_pic,
     )
 
 
@@ -43,6 +49,11 @@ def index():
 def blog():
     """Blog route"""
     db = get_db()
+    user = g.get("user", None)
+    profile_pic = None
+    if user is not None:
+        profile_pic = get_profile_pic(user["profile_pic"])
+
     more_posts = False
 
     # variable used to manage the functionality
@@ -78,7 +89,7 @@ def blog():
         return render_template(
             "main/blog.html",
             title="Home",
-            current_user=g.user,
+            current_user=user,
             posts=None,
             prev_pages=0,
             next_pages=0,
@@ -86,6 +97,7 @@ def blog():
             pages=0,
             o=o,
             more_posts=more_posts,
+            profile_pic=profile_pic,
         )
 
     index, prev_pages, next_pages = get_indexes(page_span, max_page)
@@ -95,7 +107,7 @@ def blog():
     return render_template(
         "main/blog.html",
         title="Home",
-        current_user=g.user,
+        current_user=user,
         posts=posts,
         prev_pages=prev_pages,
         next_pages=next_pages,
@@ -103,4 +115,5 @@ def blog():
         pages=max_page,
         o=o,
         more_posts=more_posts,
+        profile_pic=profile_pic,
     )

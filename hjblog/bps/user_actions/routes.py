@@ -19,6 +19,7 @@ from hjblog.bps.user_actions.auxiliaries import (
     WeatherForecast,
 )
 from hjblog.bps.user_actions.forms import CommentPost, NewPost, QueryMeteoAPI
+from hjblog.bps.user_profile.auxiliaries import get_profile_pic
 from hjblog.db import get_db
 
 bp = Blueprint("user", __name__, url_prefix="/user")
@@ -29,7 +30,8 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 def new_post():
     """New Post route"""
     form = NewPost()
-    user_id = session.get("user_id", None)
+    user = g.get("user", None)
+
     db = get_db()
 
     if form.validate_on_submit():
@@ -38,7 +40,7 @@ def new_post():
         try:
             db.execute(
                 "INSERT INTO posts (title, content, author_id) VALUES (?, ?, ?)",
-                (title, content, user_id),
+                (title, content, user["id"]),
             )
             db.commit()
         except sqlite3.Error as e:
@@ -64,7 +66,7 @@ def new_post():
         "/user_actions/new_post.html",
         form=form,
         title="New Post",
-        current_user=g.user,
+        current_user=user,
     )
 
 
@@ -74,6 +76,9 @@ def visit_post(index: int):
     identified = False
 
     db = get_db()
+
+    user = g.get("user", None)
+
     post = db.execute(
         "SELECT title, content, posted, username, users.id AS author_id, posts.id FROM posts JOIN users ON (posts.author_id = users.id) WHERE (posts.id = ?)",
         (index,),
@@ -87,8 +92,10 @@ def visit_post(index: int):
         (index,),
     ).fetchall()
 
-    if g.user is not None:
-        if g.user["id"] == post["author_id"]:
+    profile_pic = None
+    if user is not None:
+        profile_pic = get_profile_pic(user["profile_pic"])
+        if user["id"] == post["author_id"]:
             identified = True
 
     return render_template(
@@ -96,8 +103,9 @@ def visit_post(index: int):
         title=f"{post['title']}",
         post=post,
         identified=identified,
-        current_user=g.user,
+        current_user=user,
         comments=comments,
+        profile_pic=profile_pic,
     )
 
 
@@ -153,6 +161,10 @@ def comment_post(index: int):
     """Comment Post route"""
     db = get_db()
 
+    user = g.get("user", None)
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
+
     post = db.execute(
         "SELECT posts.id, posted, title, content, username FROM posts JOIN users ON (posts.author_id = users.id) WHERE (posts.id = ?)",
         (index,),
@@ -192,6 +204,7 @@ def comment_post(index: int):
         date=post["posted"],
         current_user=g.user,
         form=form,
+        profile_pic=profile_pic,
     )
 
 
@@ -201,7 +214,10 @@ def all_comments(post_id: int):
     allows user interactions.
     """
     db = get_db()
-    user = g.user
+    user = g.get("user", None)
+    profile_pic = None
+    if user is not None:
+        profile_pic = get_profile_pic(user["profile_pic"])
     comments = None
     more_comments = False
     msg_no_comments = None
@@ -278,6 +294,7 @@ def all_comments(post_id: int):
         comments=comments,
         o=o,
         more_comments=more_comments,
+        profile_pic=profile_pic,
     )
 
 
@@ -329,6 +346,8 @@ def delete_comment(index: int):
 def weather():
     """Route that allows the logged in user to access informations relative to the weather of his city or another city of his choice."""
     user = g.get("user", None)
+    # User should never be `None`
+    profile_pic = get_profile_pic(user["profile_pic"])
     city_id = user["city_id"]
     city_name = None
     forecasts = None
@@ -354,6 +373,7 @@ def weather():
             form=form,
             current_user=g.user,
             forecasts=forecasts,
+            profile_pic=profile_pic
         )
     else:
         db = get_db()
@@ -388,4 +408,5 @@ def weather():
         form=form,
         current_user=g.user,
         forecasts=forecasts,
+        profile_pic=profile_pic
     )

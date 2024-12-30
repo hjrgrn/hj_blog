@@ -8,6 +8,7 @@ CREATE TABLE users (
     is_admin BOOL NOT NULL DEFAULT(FALSE),
     is_two_factor_authentication_enabled NOT NULL DEFAULT(FALSE),
     secret_token VARCHAR(300),
+    profile_pic VARCHAR(100),
     FOREIGN KEY (city_id) REFERENCES cities (id)
 );
 

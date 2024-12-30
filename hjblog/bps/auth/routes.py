@@ -208,7 +208,7 @@ def load_logged_in_user():
         g.user = (
             get_db()
             .execute(
-                "SELECT id, username, email, city_id, is_admin, is_two_factor_authentication_enabled, secret_token FROM users WHERE id = ?",
+                "SELECT id, username, email, city_id, is_admin, is_two_factor_authentication_enabled, secret_token, profile_pic FROM users WHERE id = ?",
                 (user_id,),
             )
             .fetchone()
