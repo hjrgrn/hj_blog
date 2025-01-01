@@ -1,24 +1,29 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <header class="auth_header">
-        <h1>Change Picture</h1>
-    </header>
-    <div class="upload_form">
-        <p>Current picture</p>
-        <img class="profile-picture" src="{{ profile_pic }}" alt="profile picture"/>
+<header class="auth_header">
+    <h1>Change Picture</h1>
+</header>
+<div class="upload_form">
+    <p>Current picture</p>
+    <img class="profile-picture" src="{{ profile_pic }}" alt="profile picture" />
 
-        <form method="post" enctype="multipart/form-data" accept-charset="utf-8">
-            {{ form.hidden_tag() }}
-            <fieldset>
-                <p>{{ form.picture.label() }}</p>
-                {{ form.picture(class="upload-file") }}
+    <form method="post" enctype="multipart/form-data" accept-charset="utf-8">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <p>{{ form.picture.label() }}</p>
+            <label class="browse-file" for="picture">
+                Browse
+            </label>
+            {{ form.picture(class="upload-file") }}
+            <label for="submit">
                 {{ form.submit(class="bottone_auth") }}
-            </fieldset>
-        </form>
-    </div>
-    <div class="upload_form">
-        <p>Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
-    </div>
+            </label>
+        </fieldset>
+    </form>
+</div>
+<div class="upload_form">
+    <p>Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
+</div>
 
 {% endblock body %}
