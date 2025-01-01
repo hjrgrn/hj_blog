@@ -1,37 +1,35 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<br></br>
+<br></br>
+<br></br>
+<header class="presentation">
+    <h1>2FA enabled</h1>
+    <p>Follow the instructions below.</p>
+</header>
+<form class="index-form" role="form">
+    <div>
+        <p>Scan the Qr code with your app of choice</p>
+        <img src="data:image/png;base64, {{ qr_image }}" alt="Secret Token" />
+    </div>
     <br></br>
     <br></br>
+    <div>
+        <label for="secret">Copy the secret token</label>
+        <br></br>
+        <input class="totp_seed" type="text" id="secret" value="{{ secret }}" readonly>
+    </div>
     <br></br>
-    <!-- TODO aesthetic -->
-    <header class="presentation">
-        <h1 class="presentation_h1">2FA enabled</h1>
-        <p class="presentation_par">Follow the instructions below.</p>
-    </header>
-    <!-- TODO aesthetic -->
-    <form class="index-form" role="form">
-        <div>
-            <p class="index-form-par">Scan the Qr code with your app of choice</p>
-            <img class="index-form-img" src="data:image/png;base64, {{ qr_image }}" alt="Secret Token"/>
-        </div>
-        <br></br>
-        <br></br>
-        <div>
-            <label class="index-form-par" for="secret">Copy the secret token</label>
-            <br></br>
-            <input class="index-form-input" type="text" id="secret" value="{{ secret }}" readonly>
-        </div>
-        <br></br>
-        <div>
-            <button class="index-form-button" type="button" onclick="copySecret()">
-                Copy Secret
-            </button>
-        </div>
+    <div>
+        <button type="button" onclick="copySecret()">
+            Copy Secret
+        </button>
+    </div>
 
-        <br></br>
-        <div>
-            <p class="upload_form_par">Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
-        </div>
-    </form>
+    <br></br>
+    <div>
+        <p>Go back to your <a href="{{ url_for('profile.manage_profile') }}" class="auth_link">profile</a> page.</p>
+    </div>
+</form>
 {% endblock body %}
