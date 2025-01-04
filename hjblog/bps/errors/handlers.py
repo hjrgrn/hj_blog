@@ -9,6 +9,17 @@ Error handlers
 bp = Blueprint("errors", __name__)
 
 
+@bp.app_errorhandler(400)
+def error_400(__error__):
+    user = g.get("user", None)
+    profile_pic = None
+    if user is not None:
+        profile_pic = get_profile_pic(user["profile_pic"])
+    return (
+        render_template("errors/400.html", current_user=user, profile_pic=profile_pic),
+        400,
+    )
+
 @bp.app_errorhandler(404)
 def error_404(__error__):
     user = g.get("user", None)

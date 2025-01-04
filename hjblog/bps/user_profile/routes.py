@@ -75,8 +75,10 @@ def change_picture():
 
     if form.validate_on_submit():
         if form.picture.data:
+            pic_name = save_picture(user["profile_pic"], form.picture.data)
+            if isinstance(pic_name, int):
+                abort(pic_name)
             try:
-                pic_name = save_picture(user["profile_pic"], form.picture.data)
                 db.execute(
                     r"UPDATE users SET profile_pic = ? WHERE (id = ?)",
                     (pic_name, user["id"]),

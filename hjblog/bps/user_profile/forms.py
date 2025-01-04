@@ -113,6 +113,7 @@ class ChangePassword(FlaskForm):
 
 class ChangePicture(FlaskForm):
     def validate_picture(self, to_validate):
+        # validate filename
         filename = to_validate.data.filename
         res = re.search(r"^[a-zA-Z0-9_-]{1,50}\.(png|jpg|jpeg)$", filename)
         if res is None:
@@ -121,7 +122,8 @@ class ChangePicture(FlaskForm):
             )
 
     # NOTE: `FileAllowed` only validates that the name of the file presents `.<allowed_extension>`
-    # as suffix, doesn't actually validate the file type.
+    # as suffix, doesn't actually validate the file type, the actual file validation will be performed
+    # in `user_profile.auxiliaries.save_picture`
     # TODO: make size configurable
     picture = FileField(
         "Update Profile Picture",
