@@ -1,7 +1,8 @@
 from io import BytesIO
+from PIL import Image, UnidentifiedImageError
 import logging
 import os
-from flask import abort, current_app, url_for
+from flask import current_app, url_for
 import qrcode
 from base64 import b64encode
 import werkzeug
@@ -33,25 +34,40 @@ def get_b64encoded_qr_image(data: str) -> str:
 def save_picture(
     current_pic_name: str | None,
     picture: werkzeug.datastructures.file_storage.FileStorage,
-) -> str:
+) -> str | int:
     """
     Saves the picture on the filesystem, returns the name to the picture,
-    if the procedure wasn't successfull 500 will be sent to the client, but this should
-    not happen if the validation has been done correctly.
+    if the client uploaded an invalid picture format 400 will be returned,
+    if the procedure wasn't successfull becouse of a server error 500 will
+    be sent returned.
     The old picture of the user will be deleted.
-    This function expects the picture to be validated elsewhere, in the relative
-    `FlaskForm` probabily.
+    This function expects the name of the  picture to be validated elsewhere,
+    in the relative `FlaskForm` probabily.
     """
+    # TODO: we may want to move the logic of validating the pitcure elsewhere
     new_name = secrets.token_hex(8)
     pic_name = picture.filename
     index = pic_name.rfind(".")
     if index < 0:
         # this should not happen given the limitations on the form
-        abort(500)
+        return 500
     suffix = pic_name[index:]
     new_name = new_name + suffix
     pic_path = os.path.join(current_app.root_path, "static/profile_pics", new_name)
-    picture.save(pic_path)
+    try:
+        img = Image.open(picture)
+        # Validatin the image
+        # NOTE: this is if far from being a bullet proof validation technique
+        # for uploaded files
+        img.verify()
+        img = Image.open(picture)
+        # Save the image
+        img.save(pic_path)
+    except UnidentifiedImageError as e:
+        return 400
+    except Exception as e:
+        return 500
+
     if current_pic_name is not None:
         try:
             os.remove(

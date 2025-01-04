@@ -23,7 +23,8 @@ dependencies = [
     "email-validator",
     "pyotp",
     "qrcode[pil]",
-    "requests"
+    "requests",
+    "pillow"
 ]
 [project.optional-dependencies]
 neovim = [
