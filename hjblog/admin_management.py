@@ -1,6 +1,8 @@
+import os
+import sqlite3
 import sys
 import click
-from flask import Flask
+from flask import Flask, current_app
 
 from .auxiliaries import get_admin_credencials
 from .db import get_db
@@ -41,22 +43,34 @@ def new_admin():
         )
         db.commit()
     except db.IntegrityError as e:
-        print("Error: Couldn't add the new account becouse of: {}", e)
+        click.echo(
+            message=f"Error: Couldn't add the new account becouse of: {e}", err=True
+        )
         return
     except Exception as e:
         logging.exception(e)
         raise e
 
-    print(f'Success: New admin with username "{username}" added correctly.')
+    click.echo(f'Success: New admin with username "{username}" added correctly.')
 
 
 @click.command("clear-admins")
 def clear_admins():
     """Removes all the admin accounts from the database."""
     db = get_db()
-    admins = db.execute(
-        "SELECT username, email FROM users WHERE (is_admin = TRUE)"
-    ).fetchall()
+
+    try:
+        admins = db.execute(
+            "SELECT username, email, profile_pic FROM users WHERE (is_admin = TRUE)"
+        ).fetchall()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        click.echo(message=e.__str__(), err=True)
+        return
+    except Exception as e:
+        # Unexpected behaviour
+        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+        return
 
     if len(admins) > 0:
         print("\nThis admins accounts will be removed:")
@@ -70,8 +84,32 @@ def clear_admins():
         print("Procedure aborted.")
         return
 
-    db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
-    db.commit()
+    try:
+        db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
+        db.commit()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        click.echo(message=e.__str__(), err=True)
+        return
+    except Exception as e:
+        # Unexpected behaviour
+        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+        return
+
+    # removing profile pics
+    profile_pics_dir = os.path.join(current_app.root_path, "static/profile_pics")
+    for admin in admins:
+        if admin["profile_pic"]:
+            try:
+                file = os.path.join(profile_pics_dir, admin["profile_pic"])
+                os.remove(file)
+            except (FileNotFoundError, PermissionError) as e:
+                click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+            except Exception as e:
+                click.echo(
+                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                    err=True,
+                )
 
     print("\nThese admin accounts have been removed:")
     for admin in admins:
@@ -86,11 +124,22 @@ def remove_one_admin():
     # arrangement
     db = get_db()
     admins = []
-    res = db.execute(
-        "SELECT id, username, email FROM users WHERE (is_admin = TRUE)"
-    ).fetchall()
-    if len(res) == 0:
-        print("Currently there are no admins.")
+    res = None
+    try:
+        res = db.execute(
+            "SELECT id, username, email, profile_pic FROM users WHERE (is_admin = TRUE)"
+        ).fetchall()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        click.echo(message=e.__str__(), err=True)
+        return
+    except Exception as e:
+        # Unexpected behaviour
+        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+        return
+
+    if res is None:
+        click.echo("Currently there are no admins.")
         return
 
     # get choice
@@ -100,25 +149,53 @@ def remove_one_admin():
         prompt = prompt + f'\n[{index}]: {admin["username"]} - {admin["email"]}'
         admins.append((index, admin))
         index = index + 1
+    prompt = prompt + "\n"
 
     choice = ask_for_int(prompt, index)
     if choice is None:
-        print(
-            "Error: an invalid value has been typed. Procedure aborted.",
-            file=sys.stderr,
+        click.echo(
+            message="Error: an invalid value has been typed. Procedure aborted.",
+            err=sys.stderr,
         )
         return
     # aborting the procedure
     elif choice == 0:
-        print("Procedure aborted as required.")
+        click.echo("Procedure aborted as required.")
         return
 
     # act
     for i in admins:
         if i[0] == choice:
-            db.execute("DELETE FROM users WHERE (id = ?)", (i[1]["id"],))
-            db.commit()
-            print(f'Admin "{i[1]["username"]}" has been removed.')
+
+            try:
+                db.execute("DELETE FROM users WHERE (id = ?)", (i[1]["id"],))
+                db.commit()
+                print(f'Admin "{i[1]["username"]}" has been removed.')
+            except sqlite3.Error as e:
+                # sqlite3 related Exceptions
+                click.echo(message=e.__str__(), err=True)
+                return
+            except Exception as e:
+                # Unexpected behaviour
+                click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+                return
+            if i[1]["profile_pic"]:
+                try:
+                    file = os.path.join(
+                        current_app.root_path,
+                        "static/profile_pics",
+                        i[1]["profile_pic"],
+                    )
+                    os.remove(file)
+                except (FileNotFoundError, PermissionError) as e:
+                    click.echo(
+                        message=f"Failed to remove: {file}\nBecouse: {e}", err=True
+                    )
+                except Exception as e:
+                    click.echo(
+                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                        err=True,
+                    )
             break
 
 

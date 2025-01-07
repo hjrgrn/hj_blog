@@ -118,7 +118,7 @@ class ChangePicture(FlaskForm):
         res = re.search(r"^[a-zA-Z0-9_-]{1,50}\.(png|jpg|jpeg)$", filename)
         if res is None:
             raise ValidationError(
-                'File name needs to conform this regex: "^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$"'
+                r'File name needs to conform this regex: "^[a-zA-Z0-9]{1,50}\.(png|jpg|jpeg)$"'
             )
 
     # NOTE: `FileAllowed` only validates that the name of the file presents `.<allowed_extension>`

@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 from flask import g, current_app, Flask
@@ -29,12 +30,38 @@ def close_db(__e__=None):
         db.close()
 
 
-def init_db():
+def init_db() -> None | Exception:
     """Initializes the database."""
     db = get_db()
 
-    with current_app.open_resource("schema.sql") as var:
-        db.executescript(var.read().decode("utf-8"))
+    try:
+        with current_app.open_resource("schema.sql") as var:
+            db.executescript(var.read().decode("utf-8"))
+    except (FileNotFoundError, PermissionError) as e:
+        # File related Exceptions
+        return e
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        return e
+    except Exception as e:
+        # Unexpected behaviour
+        return e
+
+
+def clear_old_files():
+    """Clears old files, use it before initializing a new database"""
+    profile_pics_dir = os.path.join(current_app.root_path, "static/profile_pics")
+    for file_name in os.listdir(profile_pics_dir):
+        file = os.path.join(profile_pics_dir, file_name)
+        try:
+            os.remove(file)
+        except (FileNotFoundError, PermissionError) as e:
+            click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+        except Exception as e:
+            click.echo(
+                message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                err=True,
+            )
 
 
 @click.command("init-db")
@@ -43,8 +70,12 @@ def init_db_command():
     call `init_db` function, the command will be
     `flask --app hjblog:create --debug init-db`.
     """
-    init_db()
-    click.echo("Database initialized.")
+    clear_old_files()
+    res = init_db()
+    if isinstance(res, Exception):
+        click.echo(message=f"Failed to initialize the database:\n{res}", err=True)
+    else:
+        click.echo("Database initialized.")
 
 
 def init_app(app: Flask):
