@@ -55,12 +55,13 @@ def clear_old_files():
         file = os.path.join(profile_pics_dir, file_name)
         try:
             os.remove(file)
-        except FileNotFoundError:
-            click.echo(message=f"File not found: {file}", err=True)
-        except PermissionError:
-            click.echo(message=f"Permission denied: {file}", err=True)
+        except (FileNotFoundError, PermissionError) as e:
+            click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
         except Exception as e:
-            click.echo(message=f"An error occurred: {e}", err=True)
+            click.echo(
+                message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                err=True,
+            )
 
 
 @click.command("init-db")

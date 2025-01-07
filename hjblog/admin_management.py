@@ -1,6 +1,8 @@
+import os
+import sqlite3
 import sys
 import click
-from flask import Flask
+from flask import Flask, current_app
 
 from .auxiliaries import get_admin_credencials
 from .db import get_db
@@ -54,9 +56,19 @@ def new_admin():
 def clear_admins():
     """Removes all the admin accounts from the database."""
     db = get_db()
-    admins = db.execute(
-        "SELECT username, email FROM users WHERE (is_admin = TRUE)"
-    ).fetchall()
+
+    try:
+        admins = db.execute(
+            "SELECT username, email, profile_pic FROM users WHERE (is_admin = TRUE)"
+        ).fetchall()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        click.echo(message=e.__str__(), err=True)
+        return
+    except Exception as e:
+        # Unexpected behaviour
+        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+        return
 
     if len(admins) > 0:
         print("\nThis admins accounts will be removed:")
@@ -70,8 +82,32 @@ def clear_admins():
         print("Procedure aborted.")
         return
 
-    db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
-    db.commit()
+    try:
+        db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
+        db.commit()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        click.echo(message=e.__str__(), err=True)
+        return
+    except Exception as e:
+        # Unexpected behaviour
+        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+        return
+
+    # removing profile pics
+    profile_pics_dir = os.path.join(current_app.root_path, "static/profile_pics")
+    for admin in admins:
+        if admin["profile_pic"]:
+            try:
+                file = os.path.join(profile_pics_dir, admin["profile_pic"])
+                os.remove(file)
+            except (FileNotFoundError, PermissionError) as e:
+                click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+            except Exception as e:
+                click.echo(
+                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                    err=True,
+                )
 
     print("\nThese admin accounts have been removed:")
     for admin in admins:
