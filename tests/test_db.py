@@ -38,6 +38,7 @@ def test_init_db_command(runner: FlaskCliRunner, monkeypatch):
         Recorder.called = True
 
     monkeypatch.setattr("hjblog.db.init_db", fake_init_db)
-    result = runner.invoke(args=["init-db"])
+    with runner.app.test_request_context():
+        result = runner.invoke(args=["init-db"])
     assert "Database initialized." in result.output
     assert Recorder.called
