@@ -130,6 +130,7 @@ class ChangePicture(FlaskForm):
         validators=[
             # FileAllowed(["png", "jpg", "jpeg"]),
             FileSize(min_size=1, max_size=10485760),
+            DataRequired(message=DATA_REQUIRED),
         ],
     )
 

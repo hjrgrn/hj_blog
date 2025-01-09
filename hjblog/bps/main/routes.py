@@ -1,11 +1,13 @@
 from flask import (
     Blueprint,
     abort,
+    current_app,
     flash,
     g,
     redirect,
     render_template,
     request,
+    send_from_directory,
     url_for,
 )
 from flask_wtf.csrf import logging
@@ -117,3 +119,8 @@ def blog():
         more_posts=more_posts,
         profile_pic=profile_pic,
     )
+
+@bp.route("/uploads/<string:pic_name>")
+def profile_pictures(pic_name: str):
+    """View that serves a profile picture using `send_from_directory` function from `UPLOAD_DIR`."""
+    return send_from_directory(current_app.config["UPLOAD_DIR"], pic_name)

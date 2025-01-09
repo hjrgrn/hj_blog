@@ -1,4 +1,3 @@
-import os
 from flask import url_for
 from flask.testing import FlaskClient
 
@@ -317,11 +316,10 @@ def test_change_picture(client: FlaskClient, auth: AuthActions):
         res = client.get("/manage_profile")
         assert b"You have updated your profile picture correctly" in res.data
         # New picture is being displayed
-        assert url_for("static", filename="profile_pics/" + pic_name).encode("utf-8") in res.data
-
-    # Cleanup
-    path = os.path.join(os.curdir, "hjblog", "static", "profile_pics", pic_name)
-    os.remove(path)
+        assert (
+            url_for("index.profile_pictures", pic_name=pic_name).encode("utf-8")
+            in res.data
+        )
 
 
 def test_2fa(client: FlaskClient, auth: AuthActions):
@@ -353,7 +351,9 @@ def test_2fa(client: FlaskClient, auth: AuthActions):
     _ = client.get("/setup-2fa")
     res = client.get("/manage_profile")
     # link has changed to `/disable-2fa`
-    assert b'<form action="/disable-2fa" method="get" accept-charset="utf-8">' in res.data
+    assert (
+        b'<form action="/disable-2fa" method="get" accept-charset="utf-8">' in res.data
+    )
 
     _ = client.get("/setup-2fa")
     res = client.get("/manage_profile")

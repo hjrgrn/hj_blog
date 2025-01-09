@@ -15,6 +15,12 @@ def create_instance_folder(instance_path: str):
     except OSError:
         pass
 
+    upload_folder = os.path.join(instance_path, "uploads")
+    try:
+        os.mkdir(upload_folder)
+    except OSError:
+        pass
+
 
 def get_admin_credencials() -> tuple[str, str, str] | None:
     """Gets the credentials for creating a new admin

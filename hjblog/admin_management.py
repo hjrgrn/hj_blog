@@ -97,7 +97,7 @@ def clear_admins():
         return
 
     # removing profile pics
-    profile_pics_dir = os.path.join(current_app.root_path, "static/profile_pics")
+    profile_pics_dir = current_app.config["UPLOAD_DIR"]
     for admin in admins:
         if admin["profile_pic"]:
             try:
@@ -182,8 +182,7 @@ def remove_one_admin():
             if i[1]["profile_pic"]:
                 try:
                     file = os.path.join(
-                        current_app.root_path,
-                        "static/profile_pics",
+                        current_app.config["UPLOAD_DIR"],
                         i[1]["profile_pic"],
                     )
                     os.remove(file)

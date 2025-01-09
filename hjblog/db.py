@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import datetime
 
 from flask import g, current_app, Flask
 import click
@@ -50,7 +51,7 @@ def init_db() -> None | Exception:
 
 def clear_old_files():
     """Clears old files, use it before initializing a new database"""
-    profile_pics_dir = os.path.join(current_app.root_path, "static/profile_pics")
+    profile_pics_dir = current_app.config["UPLOAD_DIR"]
     for file_name in os.listdir(profile_pics_dir):
         file = os.path.join(profile_pics_dir, file_name)
         try:
@@ -85,3 +86,6 @@ def init_app(app: Flask):
     """
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+
+
+sqlite3.register_converter("timestamp", lambda v: datetime.fromisoformat(v.decode()))
