@@ -8,6 +8,8 @@ from base64 import b64encode
 import werkzeug
 import secrets
 
+from werkzeug.utils import secure_filename
+
 
 def get_b64encoded_qr_image(data: str) -> str:
     """
@@ -46,6 +48,8 @@ def save_picture(
     """
     # TODO: we may want to move the logic of validating the pitcure elsewhere
     new_name = secrets.token_hex(8)
+    # NOTE: redundancy
+    new_name = secure_filename(new_name)
     pic_name = picture.filename
     index = pic_name.rfind(".")
     if index < 0:
@@ -53,7 +57,7 @@ def save_picture(
         return 500
     suffix = pic_name[index:]
     new_name = new_name + suffix
-    pic_path = os.path.join(current_app.root_path, "static/profile_pics", new_name)
+    pic_path = os.path.join(current_app.config["UPLOAD_DIR"], new_name)
     try:
         img = Image.open(picture)
         # Validatin the image
@@ -70,11 +74,7 @@ def save_picture(
 
     if current_pic_name is not None:
         try:
-            os.remove(
-                os.path.join(
-                    current_app.root_path, "static/profile_pics", current_pic_name
-                )
-            )
+            os.remove(os.path.join(current_app.config["UPLOAD_DIR"], current_pic_name))
         except FileNotFoundError as e:
             logging.exception(e)
         except Exception as e:
@@ -90,4 +90,4 @@ def get_profile_pic(pic_name: str | None) -> str:
     if pic_name is None:
         # TODO: make default picture configurable server side
         return url_for("static", filename="default_files/anonymous_user.png")
-    return url_for("static", filename="profile_pics/" + pic_name)
+    return url_for("index.profile_pictures", pic_name=pic_name)

@@ -13,10 +13,14 @@ def create(test_config: dict[str : str | bool] | None = None) -> Flask:
         SECRET_KEY="dd8e010217eb709151bc670fe141eb3ed56b5e",
         DATABASE=os.path.join(app.instance_path, DB_SQLITE),
         APP_NAME="HJBlog",
+        UPLOAD_DIR=os.path.join(app.instance_path, "uploads"),
+        MAX_CONTENT_LENGTH=32 * 1000 * 1000,
     )
 
     if test_config is None:
-        app.config.from_pyfile("config.py", silent=True)
+        app.config.from_pyfile(
+            os.path.join(app.instance_path, "config.py"), silent=False
+        )
     else:
         app.config.from_mapping(test_config)
 

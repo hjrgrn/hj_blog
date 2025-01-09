@@ -6,7 +6,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
+*.pyc
 .pytest_cache/
+.coverage
 .webassets-cache
+htmlcov/
+dist/
+build/
 NOTES.md
 profile_pics/

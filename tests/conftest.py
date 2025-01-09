@@ -21,12 +21,14 @@ def app():
     for testsing.
     """
     db_fd, db_path = tempfile.mkstemp()
+    upload_dir = tempfile.TemporaryDirectory()
 
     app = create(
         test_config={
             "TESTING": True,
             "SECRET_KEY": "test",
             "DATABASE": db_path,
+            "UPLOAD_DIR": upload_dir.name,
             # This is necessary for unit test, otherwise I wan't be able to
             # send the correct cookie back when testing the forms
             "WTF_CSRF_ENABLED": False,
@@ -41,6 +43,7 @@ def app():
 
     os.close(db_fd)
     os.unlink(db_path)
+    upload_dir.cleanup()
 
 
 @pytest.fixture
@@ -70,7 +73,9 @@ class AuthActions:
             test_user = db.execute(
                 "SELECT * FROM users WHERE (username = ?)", (username,)
             ).fetchone()
-        self._client.post("/auth/login", data={"username": username, "submit": "Sign in"})
+        self._client.post(
+            "/auth/login", data={"username": username, "submit": "Sign in"}
+        )
         verification_url = f"/auth/authenticate/{test_user['id']}"
         return self._client.post(
             verification_url, data={"password": password, "submit": "Submit"}
