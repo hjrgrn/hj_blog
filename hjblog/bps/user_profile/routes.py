@@ -10,10 +10,11 @@ from flask import (
     render_template,
     url_for,
 )
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 import pyotp
 
-from hjblog.auxiliaries import login_required
+from hjblog.auxiliaries import login_required, logout_user
+from hjblog.bps.auth.forms import VerifyForm, VerifyForm2FA
 from hjblog.bps.user_actions.auxiliaries import Coordinates
 from hjblog.bps.user_profile.auxiliaries import (
     get_b64encoded_qr_image,
@@ -384,3 +385,107 @@ def disable_two_factor_auth():
     flash("Congratulation you have disabled 2fa.", category="alert-success")
 
     return redirect(url_for("profile.manage_profile"))
+
+
+@bp.route("/delete_account", methods=["GET", "POST"])
+@login_required
+def delete_account():
+    """Route for deleting your account"""
+    user = g.get("user", None)
+    # This should not happen
+    if user is None:
+        abort(500)
+
+    if user["is_two_factor_authentication_enabled"]:
+        return redirect(url_for("profile.delete_account_with_2fa"))
+
+    db = get_db()
+
+    form = VerifyForm()
+    if form.validate_on_submit():
+        plain_pass = form.password.data
+        if not check_password_hash(user["hash_pass"], plain_pass):
+            flash("Incorrect credentials, retry", category="alert-danger")
+            return redirect(url_for("profile.delete_account"))
+        # TODO: logout_user before of after deletion?
+        logout_user()
+        try:
+            db.execute("DELETE FROM users WHERE (id = ?)", (user["id"],))
+            db.commit()
+        except sqlite3.Error as e:
+            logging.exception(e)
+            abort(500)
+        except Exception as e:
+            # Unexpected behaviour
+            logging.exception(e)
+            abort(500)
+
+        flash(
+            "Your account has been deleted correctly...\nSee you space cowboy",
+            category="alert-success",
+        )
+        return redirect(url_for("index"))
+    if form.errors != {}:
+        for error in form.errors.values():
+            flash(f"{error[0]}", category="alert-danger")
+        return redirect(url_for("profile.delete_account", id=user["id"]))
+
+    return render_template("/user_profile/delete_account.html", form=form)
+
+
+@bp.route("/delete_account_2fa", methods=["GET", "POST"])
+@login_required
+def delete_account_with_2fa():
+    """Route for deleting your account when 2fa is enabled"""
+    user = g.get("user", None)
+    # This should not happen
+    if user["id"] is None:
+        abort(500)
+
+    if not user["is_two_factor_authentication_enabled"]:
+        flash("2fa is not enabled on this account.", category="alert-danger")
+        return redirect(url_for("profile.delete_account"))
+
+    db = get_db()
+
+    uri = pyotp.totp.TOTP(user["secret_token"]).provisioning_uri(
+        name=user["username"], issuer_name=current_app.config["APP_NAME"]
+    )
+
+    form = VerifyForm2FA()
+    if form.validate_on_submit():
+        totp_server = pyotp.parse_uri(uri)
+        plain_pass = form.password.data
+        client_totp = form.totp.data
+        if not check_password_hash(user["hash_pass"], plain_pass):
+            flash("Incorrect credentials, retry", category="alert-danger")
+            return redirect(url_for("profile.delete_account"))
+        if not totp_server.verify(client_totp):
+            flash("Incorrect credentials, retry", category="alert-danger")
+            return redirect(url_for("profile.delete_account"))
+
+        logout_user()
+        try:
+            db.execute("DELETE FROM users WHERE (id = ?)", (user["id"],))
+            db.commit()
+        except sqlite3.Error as e:
+            logging.exception(e)
+            abort(500)
+        except Exception as e:
+            # Unexpected behaviour
+            logging.exception(e)
+            abort(500)
+
+        flash(
+            "Your account has been deleted correctly...\nSee you space cowboy",
+            category="alert-success",
+        )
+        return redirect(url_for("index"))
+
+    if form.errors != {}:
+        for error in form.errors.values():
+            flash(f"{error[0]}", category="alert-danger")
+        return redirect(url_for("profile.delete_account", id=user["id"]))
+
+    return render_template("/user_profile/delete_account_2fa.html", form=form)
+
