@@ -64,6 +64,11 @@ def test_manage_profie(client: FlaskClient, auth: AuthActions):
             "utf-8"
         )
         assert html_tag in res.data
+        url = url_for("profile.delete_account")
+        html_tag = f'<form action="{url}" method="get" accept-charset="utf-8">'.encode(
+            "utf-8"
+        )
+        assert html_tag in res.data
 
 
 def test_change_username(client: FlaskClient, auth: AuthActions):
@@ -363,3 +368,35 @@ def test_2fa(client: FlaskClient, auth: AuthActions):
     res = client.get("/manage_profile")
     # link has changed to `/setup-2fa`
     assert b'<form action="/setup-2fa" method="get" accept-charset="utf-8">' in res.data
+
+
+def delete_account(client: FlaskClient, auth: AuthActions):
+    """Functionality for 2FA should:
+    - refuse the connection if not logged in. 302 redirect to login
+    - respond with 200 if user is logged in
+    - delete account with a post request and 302 redirect to index
+    - redirect you to delete_account_with_2fa if 2fa is enabled
+    """
+    res = client.get("/delete_account")
+    check_navbar(client, auth)
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/auth/login"
+
+    auth.login(username="admin", password="prova")
+    res = client.get("/delete_account")
+    assert res.status_code == 200
+
+    res = client.post("/delete_account", data={"password": "prova", "submit": "Submit"})
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/"
+
+    with client.application.app_context():
+        db = get_db()
+        res = db.execute("SELECT id FROM users WHERE (username = admin)").fetchone()
+        assert res is None
+
+    auth.login(username="prova", password="prova")
+    _ = client.get("/setup-2fa")
+    res = client.get("/delete_account")
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/delete_account_2fa"

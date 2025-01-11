@@ -437,7 +437,6 @@ def delete_account():
 @login_required
 def delete_account_with_2fa():
     """Route for deleting your account when 2fa is enabled"""
-    # TODO:
     user = g.get("user", None)
     # This should not happen
     if user["id"] is None:
