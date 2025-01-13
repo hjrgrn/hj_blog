@@ -1126,6 +1126,17 @@ body {
     transition: all .5s ease-in-out;
 }
 
+.index-form .delete {
+    background-image: linear-gradient(to right, var(--red2), var(--red5));
+    color: var(--black1);
+}
+
+.index-form .delete:hover {
+    color: var(--black1);
+    background-image: linear-gradient(to right, var(--orange2), var(--orange1));
+    transition: all .5s ease-in-out;
+}
+
 .index-form img {
     width: 90%;
 }

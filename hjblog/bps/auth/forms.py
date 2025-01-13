@@ -1,13 +1,21 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    Length,
+    Optional,
+    Regexp,
+    ValidationError,
+)
 from hjblog.db import get_db
 
 
 class RegisterForm(FlaskForm):
     """RegisterForm"""
 
-    def validate_username(self, user_to_validate):
+    def validate_username(self, user_to_validate: StringField):
         db = get_db()
         user = db.execute(
             "SELECT id FROM users WHERE (username = ?)", (user_to_validate.data,)
@@ -17,7 +25,7 @@ class RegisterForm(FlaskForm):
                 f"The username {user_to_validate.data} has already been taken!"
             )
 
-    def validate_email(self, email_to_validate):
+    def validate_email(self, email_to_validate: StringField):
         db = get_db()
         email = db.execute(
             "SELECT id FROM users WHERE (email = ?)", (email_to_validate.data,)
@@ -82,7 +90,7 @@ class RegisterForm(FlaskForm):
                 message="Longest city name has to be shorter then 169 characters.",
             ),
             Regexp(regex=r"[a-zA-Z\s]{1,169}", message="Unsupported characters."),
-            Optional()
+            Optional(),
         ],
     )
     submit = SubmitField(label="Register")

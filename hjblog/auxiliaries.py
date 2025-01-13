@@ -3,10 +3,13 @@ import re
 import getpass
 import functools
 import sys
+from typing import Callable, ParamSpec
 
 from flask import abort, flash, g, session, url_for, redirect
 
 from werkzeug.security import generate_password_hash
+
+P = ParamSpec("P")
 
 
 def create_instance_folder(instance_path: str):
@@ -86,13 +89,13 @@ def logout_user():
     session.clear()
 
 
-def login_required(view):
+def login_required(view: Callable[P, str]) -> Callable[P, str]:
     """Decorator that forbids to reach a certain page
     if the user is not logged in.
     """
 
     @functools.wraps(view)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs):
         if g.user is None:
             flash("Login required to view this page.", category="alert-danger")
             return redirect(url_for("auth.login"))
@@ -101,13 +104,13 @@ def login_required(view):
     return wrapper
 
 
-def login_forbidden(view):
+def login_forbidden(view: Callable[P, str]) -> Callable[P, str]:
     """Decorator that forbids to reach a certain page
     if the user is logged in.
     """
 
     @functools.wraps(view)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs):
         if g.user is not None:
             flash("Log out before accessing this page", category="alert-danger")
             return redirect(url_for("index"))
@@ -116,13 +119,13 @@ def login_forbidden(view):
     return wrapper
 
 
-def admin_only(view):
+def admin_only(view: Callable[P, str]) -> Callable[P, str]:
     """Decorator that forbids to reach a certain page
     if you are not an admin.
     """
 
     @functools.wraps(view)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs):
         if g.user is None:
             flash("Login required to view this page.", category="alert-danger")
             return redirect(url_for("auth.login"))

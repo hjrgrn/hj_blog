@@ -17,7 +17,7 @@ DATA_REQUIRED = "This field is required."
 
 
 class ChangeName(FlaskForm):
-    def validate_username(self, to_validate):
+    def validate_username(self, to_validate: StringField):
         db = get_db()
         name = db.execute(
             "SELECT id FROM users WHERE (username = ?)", (to_validate.data,)
@@ -59,7 +59,7 @@ class ChangeCity(FlaskForm):
 
 
 class ChangeEmail(FlaskForm):
-    def validate_email(self, to_validate):
+    def validate_email(self, to_validate: StringField):
         db = get_db()
         name = db.execute(
             "SELECT id FROM users WHERE (email = ?)", (to_validate.data,)
@@ -112,7 +112,7 @@ class ChangePassword(FlaskForm):
 
 
 class ChangePicture(FlaskForm):
-    def validate_picture(self, to_validate):
+    def validate_picture(self, to_validate: FileField):
         # validate filename
         filename = to_validate.data.filename
         res = re.search(r"^[a-zA-Z0-9_-]{1,50}\.(png|jpg|jpeg)$", filename)
