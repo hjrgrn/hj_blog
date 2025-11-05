@@ -80,9 +80,8 @@ def init_db_command():
 
 
 def init_app(app: Flask):
-    """Takes an instance of flask and append to it
-    the command that we have specified with
-    `init_db_command`.
+    """Takes a Flask instance and appends to it
+    the command specified by `init_db_command`.
     """
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
