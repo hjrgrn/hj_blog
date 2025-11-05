@@ -54,20 +54,25 @@ def clear_old_files():
     for file_name in os.listdir(profile_pics_dir):
         file = os.path.join(profile_pics_dir, file_name)
         try:
+            # NOTE: Assumes `file` is not a directory. If it is, an error will be raised.
             os.remove(file)
         except (FileNotFoundError, PermissionError) as e:
-            click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+            click.echo(message=f"Could not remove: {file}\nReason: {e}", err=True)
+        except IsADirectoryError as e:
+            click.echo(
+                message=f"Could not remove: {file}\nReason: {e}\nThis directory should contain only image files.",
+                err=True,
+            )
         except Exception as e:
             click.echo(
-                message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                message=f"Unexpected Exception occurred.\nCould not remove: {file}\nReason: {e}",
                 err=True,
             )
 
 
 @click.command("init-db")
 def init_db_command():
-    """Defines a command that will
-    call `init_db` function, the command will be
+    """Defines a CLI command that initializes the database. Can be invoked via:
     `flask --app hjblog:create --debug init-db`.
     """
     clear_old_files()
