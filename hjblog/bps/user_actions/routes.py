@@ -373,7 +373,7 @@ def weather():
             form=form,
             current_user=g.user,
             forecasts=forecasts,
-            profile_pic=profile_pic
+            profile_pic=profile_pic,
         )
     else:
         db = get_db()
@@ -408,5 +408,5 @@ def weather():
         form=form,
         current_user=g.user,
         forecasts=forecasts,
-        profile_pic=profile_pic
+        profile_pic=profile_pic,
     )

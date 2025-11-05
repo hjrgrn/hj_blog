@@ -68,7 +68,7 @@ def blog():
     # amount of pages that will be displayed into the imagination
     page_span = PAGE_SPAN
 
-    # maximum page index, for inpagination
+    # maximum page index, for pagination
     max_page = None
     try:
         count = (

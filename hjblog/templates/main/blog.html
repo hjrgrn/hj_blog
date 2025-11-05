@@ -31,13 +31,13 @@
                 {% endif %}
 
                 {% for page in range(0, pages + 1) %}
-                {% if page >= prev_pages and page < current_page %}
-                    <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
-                {% elif page == current_page %}
-                    <a class="page_num page_num_main" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
-                {% elif page > current_page and page <= next_pages %}
-                    <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
-                {% endif %}
+                    {% if page >= prev_pages and page < current_page %}
+                        <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                    {% elif page == current_page %}
+                        <a class="page_num page_num_main" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                    {% elif page > current_page and page <= next_pages %}
+                        <a class="page_num" href="{{ url_for('index.blog', index=page, o=o) }}">{{ page }}</a>
+                    {% endif %}
                 {% endfor %}
 
                 {% if next_pages < pages %}
