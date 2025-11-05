@@ -22,9 +22,8 @@ def get_db() -> sqlite3.Connection:
 
 
 def close_db(__e__=None):
-    """If a connection to the database is present
-    in `g`, it will be popped and then closed.
-    NOTE: `e` is necessary.
+    """If a database connection exists in `g`, it will be removed and closed.
+    Note: The `e` parameter is required for compatibility with teardown handlers.
     """
     db: sqlite3.Connection = g.pop("db", None)
     if db is not None:
