@@ -84,22 +84,26 @@ def clear_admins():
         print("Procedure aborted.")
         return
 
-    try:
-        # NOTE: minor TOCTUO race
-        db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
-        db.commit()
-    except sqlite3.Error as e:
-        # sqlite3 related Exceptions
-        click.echo(message=e.__str__(), err=True)
-        return
-    except Exception as e:
-        # Unexpected behaviour
-        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
-        return
+    delete_admins = []
+    for admin in admins:
+        try:
+            # NOTE: Minor TOCTOU race condition: another process may have added or removed
+            # an admin account after the user was notified of the list to be deleted.
+            db.execute("DELETE FROM users WHERE (username = ?)", (admin["username"],))
+            db.commit()
+            delete_admins.append(admin)
+        except sqlite3.Error as e:
+            # sqlite3 related Exceptions
+            click.echo(message=e.__str__(), err=True)
+            return
+        except Exception as e:
+            # Unexpected behaviour
+            click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+            return
 
     # removing profile pics
     profile_pics_dir = current_app.config["UPLOAD_DIR"]
-    for admin in admins:
+    for admin in delete_admins:
         if admin["profile_pic"]:
             try:
                 file = os.path.join(profile_pics_dir, admin["profile_pic"])
@@ -113,7 +117,7 @@ def clear_admins():
                 )
 
     print("\nThese admin accounts have been removed:")
-    for admin in admins:
+    for admin in delete_admins:
         print(f'\t{admin["username"]}')
 
 
@@ -306,8 +310,7 @@ def generate_random_comments():
 
 
 def init_app(app: Flask):
-    """Add several click commands to the application.
-    """
+    """Add several click commands to the application."""
     app.cli.add_command(new_admin)
     app.cli.add_command(clear_admins)
     app.cli.add_command(remove_one_admin)
