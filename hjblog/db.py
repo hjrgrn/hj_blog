@@ -7,9 +7,8 @@ import click
 
 
 def get_db() -> sqlite3.Connection:
-    """Checks if `g` object contains a connection to
-    the database, if it does it will be returned, otherwise
-    a new connection will be enstablished and then returned.
+    """Return the database connection from the `g` object if it exists; otherwise,
+    establish a new connection and return it.
     """
     if "db" not in g:
         g.db = sqlite3.connect(

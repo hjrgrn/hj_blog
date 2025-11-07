@@ -28,7 +28,7 @@ def display_commands():
 
 @click.command("new-admin")
 def new_admin():
-    """Adds a new admin account."""
+    """Add a new admin account."""
     db = get_db()
 
     tup = get_admin_credencials()
