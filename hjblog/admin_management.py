@@ -4,7 +4,7 @@ import sys
 import click
 from flask import Flask, current_app
 
-from .auxiliaries import get_admin_credencials
+from .auxiliaries import get_admin_credentials
 from .db import get_db
 
 import logging
@@ -31,7 +31,7 @@ def new_admin():
     """Add a new admin account."""
     db = get_db()
 
-    tup = get_admin_credencials()
+    tup = get_admin_credentials()
     if tup is None:
         return
     (username, email, password_hash) = tup
