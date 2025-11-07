@@ -305,8 +305,7 @@ def generate_random_comments():
 
 
 def init_app(app: Flask):
-    """Adds the click commands defined here
-    to the application
+    """Add several click commands to the application.
     """
     app.cli.add_command(new_admin)
     app.cli.add_command(clear_admins)
