@@ -56,7 +56,7 @@ def new_admin():
 
 @click.command("clear-admins")
 def clear_admins():
-    """Removes all the admin accounts from the database."""
+    """Remove all admin accounts from the database."""
     db = get_db()
 
     try:
@@ -73,18 +73,19 @@ def clear_admins():
         return
 
     if len(admins) > 0:
-        print("\nThis admins accounts will be removed:")
+        print("\nThis admin accounts will be removed:")
         for admin in admins:
             print(f'\t{admin["username"]} - {admin["email"]}')
     else:
         print("Currently there are no admin account.")
         return
-    procede = input("\nProcede(y, N): ")
+    procede = input("\nProcede (y, N): ")
     if procede != "y":
         print("Procedure aborted.")
         return
 
     try:
+        # NOTE: minor TOCTUO race
         db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
         db.commit()
     except sqlite3.Error as e:
@@ -104,10 +105,10 @@ def clear_admins():
                 file = os.path.join(profile_pics_dir, admin["profile_pic"])
                 os.remove(file)
             except (FileNotFoundError, PermissionError) as e:
-                click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+                click.echo(message=f"Failed to remove: {file}\nReason: {e}", err=True)
             except Exception as e:
                 click.echo(
-                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
                     err=True,
                 )
 
