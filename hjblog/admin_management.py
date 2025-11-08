@@ -128,7 +128,7 @@ def clear_admins():
 
 @click.command("remove-one-admin")
 def remove_one_admin():
-    """Allows the user to select an admin to
+    """Allow the user to select an admin to
     remove.
     """
     # arrangement
@@ -331,12 +331,17 @@ def init_app(app: Flask):
 
 
 def ask_for_int(prompt: str, limit: int | None = None) -> int | None:
-    """Helper function, asks for a positive int and returns it,
-    if the int exceeds `limit` `limit` will be returned(if limit was provided), if the
-    int is negative None is returned.
-    Returns a positive int or None is it was unable to return a
-    positive int.
-    Unexpected Exceptions will be logged and will be raised.
+    """Helper function that prompts the user for a positive integer and returns it.
+
+    If the input exceeds `limit` (if provided), `limit` is returned instead.
+    If the input is negative, None is returned.
+    The function logs and re-raises any unexpected exceptions.
+
+    Returns:
+        int or None: A positive integer, or None if input was negative or invalid.
+
+    Raises:
+        Any unexpected exception will be logged and re-raised.
     """
     amount = input(prompt)
     try:
