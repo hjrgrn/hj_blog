@@ -110,6 +110,11 @@ def clear_admins():
                 os.remove(file)
             except (FileNotFoundError, PermissionError) as e:
                 click.echo(message=f"Failed to remove: {file}\nReason: {e}", err=True)
+            except IsADirectoryError as e:
+                click.echo(
+                    message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
+                    err=True,
+                )
             except Exception as e:
                 click.echo(
                     message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
@@ -169,6 +174,7 @@ def remove_one_admin():
         return
 
     # act
+    profile_pics_dir = current_app.config["UPLOAD_DIR"]
     for i in admins:
         if i[0] == choice:
 
@@ -185,19 +191,24 @@ def remove_one_admin():
                 click.echo(message=f"Unexpected Exception:\n{e}", err=True)
                 return
             if i[1]["profile_pic"]:
+                file = os.path.join(
+                    profile_pics_dir,
+                    i[1]["profile_pic"],
+                )
                 try:
-                    file = os.path.join(
-                        current_app.config["UPLOAD_DIR"],
-                        i[1]["profile_pic"],
-                    )
                     os.remove(file)
                 except (FileNotFoundError, PermissionError) as e:
                     click.echo(
-                        message=f"Failed to remove: {file}\nBecouse: {e}", err=True
+                        message=f"Failed to remove: {file}\nReason: {e}", err=True
+                    )
+                except IsADirectoryError as e:
+                    click.echo(
+                        message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
+                        err=True,
                     )
                 except Exception as e:
                     click.echo(
-                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
                         err=True,
                     )
             break

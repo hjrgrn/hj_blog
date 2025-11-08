@@ -73,10 +73,16 @@ def save_picture(
         return 500
 
     if current_pic_name is not None:
+        profile_pic_dir = current_app.config["UPLOAD_DIR"]
+        file = os.path.join(profile_pic_dir, current_pic_name)
         try:
-            os.remove(os.path.join(current_app.config["UPLOAD_DIR"], current_pic_name))
-        except FileNotFoundError as e:
+            os.remove(file)
+        except (FileNotFoundError, PermissionError) as e:
             logging.exception(e)
+        except IsADirectoryError as e:
+            logging.error(
+                msg=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pic_dir} is suppos to be made exclusively of files."
+            )
         except Exception as e:
             logging.exception(e)
     return new_name
