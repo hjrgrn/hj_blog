@@ -174,44 +174,7 @@ def remove_one_admin():
         return
 
     # act
-    profile_pics_dir = current_app.config["UPLOAD_DIR"]
-    for i in admins:
-        if i[0] == choice:
-
-            try:
-                db.execute("DELETE FROM users WHERE (id = ?)", (i[1]["id"],))
-                db.commit()
-                print(f'Admin "{i[1]["username"]}" has been removed.')
-            except sqlite3.Error as e:
-                # sqlite3 related Exceptions
-                click.echo(message=e.__str__(), err=True)
-                return
-            except Exception as e:
-                # Unexpected behaviour
-                click.echo(message=f"Unexpected Exception:\n{e}", err=True)
-                return
-            if i[1]["profile_pic"]:
-                file = os.path.join(
-                    profile_pics_dir,
-                    i[1]["profile_pic"],
-                )
-                try:
-                    os.remove(file)
-                except (FileNotFoundError, PermissionError) as e:
-                    click.echo(
-                        message=f"Failed to remove: {file}\nReason: {e}", err=True
-                    )
-                except IsADirectoryError as e:
-                    click.echo(
-                        message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
-                        err=True,
-                    )
-                except Exception as e:
-                    click.echo(
-                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
-                        err=True,
-                    )
-            break
+    iterate_and_remove_one_admin(admins, choice, db)
 
 
 @click.command("gen-posts")
@@ -359,3 +322,47 @@ def ask_for_int(prompt: str, limit: int | None = None) -> int | None:
         return None
 
     return amount
+
+
+def iterate_and_remove_one_admin(
+    admins: list[tuple[str, str]], choice: int, db: sqlite3.Connection
+):
+    """Helper function for `remove_one_admin`. Removes the selected admin. Reports eventual failure."""
+    profile_pics_dir = current_app.config["UPLOAD_DIR"]
+    for i in admins:
+        if i[0] == choice:
+
+            try:
+                db.execute("DELETE FROM users WHERE (id = ?)", (i[1]["id"],))
+                db.commit()
+                print(f'Admin "{i[1]["username"]}" has been removed.')
+            except sqlite3.Error as e:
+                # sqlite3 related Exceptions
+                click.echo(message=e.__str__(), err=True)
+                return
+            except Exception as e:
+                # Unexpected behaviour
+                click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+                return
+            if i[1]["profile_pic"]:
+                file = os.path.join(
+                    profile_pics_dir,
+                    i[1]["profile_pic"],
+                )
+                try:
+                    os.remove(file)
+                except (FileNotFoundError, PermissionError) as e:
+                    click.echo(
+                        message=f"Failed to remove: {file}\nReason: {e}", err=True
+                    )
+                except IsADirectoryError as e:
+                    click.echo(
+                        message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
+                        err=True,
+                    )
+                except Exception as e:
+                    click.echo(
+                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
+                        err=True,
+                    )
+            break
