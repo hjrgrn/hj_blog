@@ -25,12 +25,14 @@ def create_instance_folder(instance_path: str):
         pass
 
 
-def get_admin_credencials() -> tuple[str, str, str] | None:
-    """Gets the credentials for creating a new admin
-    account directly from the user, returns `None`
-    if the values provided aren't good.
+def get_admin_credentials() -> tuple[str, str, str] | None:
+    """Get admin account credentials from the user.
 
-    :returns: (username, email, password_hash)
+    Returns the username, email, and password hash if valid.
+    Returns None if one or more of the provided values are invalid.
+
+    Returns:
+        Tuple[str, str, str] or None: (username, email, password_hash) if valid, otherwise None.
     """
     username = input("Username: ")
     if len(username) > 60:

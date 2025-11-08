@@ -4,7 +4,7 @@ import sys
 import click
 from flask import Flask, current_app
 
-from .auxiliaries import get_admin_credencials
+from .auxiliaries import get_admin_credentials
 from .db import get_db
 
 import logging
@@ -28,10 +28,10 @@ def display_commands():
 
 @click.command("new-admin")
 def new_admin():
-    """Adds a new admin account."""
+    """Add a new admin account."""
     db = get_db()
 
-    tup = get_admin_credencials()
+    tup = get_admin_credentials()
     if tup is None:
         return
     (username, email, password_hash) = tup
@@ -56,7 +56,7 @@ def new_admin():
 
 @click.command("clear-admins")
 def clear_admins():
-    """Removes all the admin accounts from the database."""
+    """Remove all admin accounts from the database."""
     db = get_db()
 
     try:
@@ -73,46 +73,56 @@ def clear_admins():
         return
 
     if len(admins) > 0:
-        print("\nThis admins accounts will be removed:")
+        print("\nThis admin accounts will be removed:")
         for admin in admins:
             print(f'\t{admin["username"]} - {admin["email"]}')
     else:
         print("Currently there are no admin account.")
         return
-    procede = input("\nProcede(y, N): ")
+    procede = input("\nProcede (y, N): ")
     if procede != "y":
         print("Procedure aborted.")
         return
 
-    try:
-        db.execute("DELETE FROM users WHERE (is_admin = TRUE)")
-        db.commit()
-    except sqlite3.Error as e:
-        # sqlite3 related Exceptions
-        click.echo(message=e.__str__(), err=True)
-        return
-    except Exception as e:
-        # Unexpected behaviour
-        click.echo(message=f"Unexpected Exception:\n{e}", err=True)
-        return
+    delete_admins = []
+    for admin in admins:
+        try:
+            # NOTE: Minor TOCTOU race condition: another process may have added or removed
+            # an admin account after the user was notified of the list to be deleted.
+            db.execute("DELETE FROM users WHERE (username = ?)", (admin["username"],))
+            db.commit()
+            delete_admins.append(admin)
+        except sqlite3.Error as e:
+            # sqlite3 related Exceptions
+            click.echo(message=e.__str__(), err=True)
+            return
+        except Exception as e:
+            # Unexpected behaviour
+            click.echo(message=f"Unexpected Exception:\n{e}", err=True)
+            return
 
     # removing profile pics
     profile_pics_dir = current_app.config["UPLOAD_DIR"]
-    for admin in admins:
+    for admin in delete_admins:
         if admin["profile_pic"]:
             try:
                 file = os.path.join(profile_pics_dir, admin["profile_pic"])
                 os.remove(file)
             except (FileNotFoundError, PermissionError) as e:
-                click.echo(message=f"Failed to remove: {file}\nBecouse: {e}", err=True)
+                click.echo(message=f"Failed to remove: {file}\nReason: {e}", err=True)
+            except IsADirectoryError as e:
+                click.echo(
+                    message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
+                    err=True,
+                )
             except Exception as e:
                 click.echo(
-                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                    message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
                     err=True,
                 )
 
     print("\nThese admin accounts have been removed:")
-    for admin in admins:
+    for admin in delete_admins:
         print(f'\t{admin["username"]}')
 
 
@@ -164,6 +174,7 @@ def remove_one_admin():
         return
 
     # act
+    profile_pics_dir = current_app.config["UPLOAD_DIR"]
     for i in admins:
         if i[0] == choice:
 
@@ -180,19 +191,24 @@ def remove_one_admin():
                 click.echo(message=f"Unexpected Exception:\n{e}", err=True)
                 return
             if i[1]["profile_pic"]:
+                file = os.path.join(
+                    profile_pics_dir,
+                    i[1]["profile_pic"],
+                )
                 try:
-                    file = os.path.join(
-                        current_app.config["UPLOAD_DIR"],
-                        i[1]["profile_pic"],
-                    )
                     os.remove(file)
                 except (FileNotFoundError, PermissionError) as e:
                     click.echo(
-                        message=f"Failed to remove: {file}\nBecouse: {e}", err=True
+                        message=f"Failed to remove: {file}\nReason: {e}", err=True
+                    )
+                except IsADirectoryError as e:
+                    click.echo(
+                        message=f"Failed to remove: {file}\nReason: {e}\nThis should not have appened since the content of {profile_pics_dir} is suppos to be made exclusively of files.",
+                        err=True,
                     )
                 except Exception as e:
                     click.echo(
-                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nBecouse: {e}",
+                        message=f"Unexpected Exception occurred.\nFailed to remove: {file}\nReason: {e}",
                         err=True,
                     )
             break
@@ -305,9 +321,7 @@ def generate_random_comments():
 
 
 def init_app(app: Flask):
-    """Adds the click commands defined here
-    to the application
-    """
+    """Add several click commands to the application."""
     app.cli.add_command(new_admin)
     app.cli.add_command(clear_admins)
     app.cli.add_command(remove_one_admin)
