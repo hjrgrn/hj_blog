@@ -214,16 +214,16 @@ def generate_n_posts():
 
 
 @click.command("gen-comments")
-def generate_random_comments():
-    """Generates a random amount of comments to insert into
-    the database for testing purpose.
+def generate_n_comments():
+    """Generate test comments on a post after prompting the user for the amount and
+    the ID of the post.
     """
     db = get_db()
 
     admin = db.execute("SELECT id FROM users WHERE (is_admin = true)").fetchone()
     if admin is None:
         print(
-            'At least one admin is to be registered in order to execute this command, user "new-admin" command.',
+            'At least one admin must be registered to execute this command. Use the "new-admin" command to register an admin.',
             file=sys.stderr,
         )
         return
@@ -246,7 +246,7 @@ def generate_random_comments():
         )
         return
 
-    prompt = "Type the id of the post you want to add comments to, some valid id: "
+    prompt = "Type the id of the post you want to add comments to.\nSome valid IDs: "
     for post in some_posts_id:
         prompt = prompt + f' {post["id"]}'
     prompt = prompt + "\n>> "
@@ -263,7 +263,7 @@ def generate_random_comments():
         return
 
     for i in range(0, amount):
-        content = f"Dummie comment number {i}"
+        content = f"Test comment number {i}"
         try:
             db.execute(
                 "INSERT INTO comments (post_id, content, author_id) VALUES (?, ?, ?)",
@@ -274,8 +274,10 @@ def generate_random_comments():
             raise e
     try:
         db.commit()
+    except sqlite3.Error as e:
+        # sqlite3 related Exceptions
+        raise e
     except Exception as e:
-        logging.exception(e)
         raise e
 
     print(f'Success! Added {amount} comments to the post "{post["title"]}".')
@@ -287,7 +289,7 @@ def init_app(app: Flask):
     app.cli.add_command(clear_admins)
     app.cli.add_command(remove_one_admin)
     app.cli.add_command(generate_n_posts)
-    app.cli.add_command(generate_random_comments)
+    app.cli.add_command(generate_n_comments)
     app.cli.add_command(display_commands)
 
 
