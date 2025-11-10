@@ -22,7 +22,7 @@ init-db -> Initializes the database, deleting all the data saved so far.
 
 @click.command("ls")
 def display_commands():
-    """Displays all the avaible commands."""
+    """Displays all the available commands."""
     click.echo(LS)
 
 
