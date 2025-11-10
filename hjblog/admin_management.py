@@ -178,16 +178,14 @@ def remove_one_admin():
 
 
 @click.command("gen-posts")
-def generate_random_posts():
-    """Generates a random amount of posts to insert into
-    the database for testing purpose.
-    """
-    # we need an admin
+def generate_n_posts():
+    """Generate test posts after prompting the user for the amount."""
+    # NOTE: a registered admin is needed
     db = get_db()
     admin = db.execute("SELECT id FROM users WHERE (is_admin = true)").fetchone()
     if admin is None:
         print(
-            'At least one admin is to be registered in order to execute this command, use the "new-admin" command.',
+            'At least one admin must be registered to execute this command. Use the "new-admin" command to register an admin.',
             file=sys.stderr,
         )
         return
@@ -288,7 +286,7 @@ def init_app(app: Flask):
     app.cli.add_command(new_admin)
     app.cli.add_command(clear_admins)
     app.cli.add_command(remove_one_admin)
-    app.cli.add_command(generate_random_posts)
+    app.cli.add_command(generate_n_posts)
     app.cli.add_command(generate_random_comments)
     app.cli.add_command(display_commands)
 
