@@ -12,14 +12,14 @@ from flask import (
 )
 from flask_wtf.csrf import logging
 
-from hjblog.auxiliaries import admin_only, login_required
-from hjblog.bps.general_auxiliaries.auxiliaries import get_indexes, get_offset
-from hjblog.bps.user_actions.auxiliaries import (
+from hjblog.utils import admin_only, login_required
+from hjblog.bps.utils.get_functions import get_indexes, get_offset
+from hjblog.bps.user_actions.utils import (
     Coordinates,
     WeatherForecast,
 )
 from hjblog.bps.user_actions.forms import CommentPost, NewPost, QueryMeteoAPI
-from hjblog.bps.user_profile.auxiliaries import get_profile_pic
+from hjblog.bps.user_profile.utils import get_profile_pic
 from hjblog.db import get_db
 
 bp = Blueprint("user", __name__, url_prefix="/user")

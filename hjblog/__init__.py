@@ -1,7 +1,7 @@
 from flask import Flask
 import os
 
-from .auxiliaries import create_instance_folder
+from .utils import create_instance_folder
 
 from .globals import DB_SQLITE
 

@@ -1,6 +1,6 @@
 from flask.testing import FlaskClient
 
-from auxiliaries import check_navbar
+from utils import check_navbar
 from conftest import AuthActions
 from hjblog.db import get_db
 

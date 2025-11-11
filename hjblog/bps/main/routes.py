@@ -12,10 +12,10 @@ from flask import (
 )
 from flask_wtf.csrf import logging
 from hjblog.bps.main.globals import MAX_PER_PAGE, PAGE_SPAN
-from hjblog.bps.main.helpers import get_posts
-from hjblog.bps.general_auxiliaries.auxiliaries import get_indexes, get_offset
+from hjblog.bps.main.utils import get_posts
+from hjblog.bps.utils.get_functions import get_indexes, get_offset
 
-from hjblog.bps.user_profile.auxiliaries import get_profile_pic
+from hjblog.bps.user_profile.utils import get_profile_pic
 from hjblog.db import get_db
 
 

@@ -123,7 +123,7 @@ class ChangePicture(FlaskForm):
 
     # NOTE: `FileAllowed` only validates that the name of the file presents `.<allowed_extension>`
     # as suffix, doesn't actually validate the file type, the actual file validation will be performed
-    # in `user_profile.auxiliaries.save_picture`
+    # in `user_profile.utils.save_picture`
     # TODO: make size configurable
     picture = FileField(
         "Update Profile Picture",

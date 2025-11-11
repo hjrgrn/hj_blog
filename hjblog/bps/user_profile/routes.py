@@ -13,10 +13,10 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 import pyotp
 
-from hjblog.auxiliaries import login_required, logout_user
+from hjblog.utils import login_required, logout_user
 from hjblog.bps.auth.forms import VerifyForm, VerifyForm2FA
-from hjblog.bps.user_actions.auxiliaries import Coordinates
-from hjblog.bps.user_profile.auxiliaries import (
+from hjblog.bps.user_actions.utils import Coordinates
+from hjblog.bps.user_profile.utils import (
     get_b64encoded_qr_image,
     get_profile_pic,
     save_picture,
