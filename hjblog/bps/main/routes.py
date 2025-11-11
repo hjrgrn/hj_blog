@@ -122,5 +122,5 @@ def blog():
 
 @bp.route("/uploads/<string:pic_name>")
 def profile_pictures(pic_name: str):
-    """View that serves a profile picture using `send_from_directory` function from `UPLOAD_DIR`."""
+    """Serve a profile picture using send_from_directory from UPLOAD_DIR."""
     return send_from_directory(current_app.config["UPLOAD_DIR"], pic_name)
