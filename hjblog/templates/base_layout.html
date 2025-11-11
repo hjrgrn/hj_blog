@@ -11,17 +11,22 @@
         {% endif %}
     </head>
     <body>
-        {% for message in get_flashed_messages(with_categories=True) %}
-            <div id='alerts' onclick="alertDisplay()" style="text-align: center;">
-                <div class="{{ message[0] }} alert-generic">
-                    {{ message[1] }}<br></br>
+        {% set flash_messages = get_flashed_messages(with_categories=True) %}
+        {% if flash_messages %}
+            <div id="alerts" onclick="alertDisplay()">
+                {% for message in flash_messages %}
+                <div style="text-align: center;">
+                    <div class="{{ message[0] }} alert-generic">
+                        {{ message[1] }}<br></br>
+                    </div>
+                    <br></br>
                 </div>
-                <br></br>
+                {% endfor %}
             </div>
-		{% endfor %}
-		<div id="bottone" style="text-align: center; visibility: hidden;">
-			<button id="alert_button" onclick="alertButton()">Show Messages</button>
-		</div>
+            <div id="bottone" style="text-align: center; visibility: hidden;">
+                <button id="alert_button" onclick="alertButton()">Show Messages</button>
+            </div>
+        {% endif %}
 
         {% block base_body %}{% endblock base_body %}
 
