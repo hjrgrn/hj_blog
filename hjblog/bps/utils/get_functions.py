@@ -12,7 +12,7 @@ def get_indexes(page_span: int, max_page: int) -> tuple[int, int, int]:
     The parameter `max_page` needs to be obtained by dividing the total amount of comments/posts by
     the number of comments/posts to be displayed on the document.
     """
-    #IDEA: we may refactor this in a function that takes index instead of extracting the index variable from the request itself
+    # IDEA: we may refactor this in a function that takes index instead of extracting the index variable from the request itself
     index = None
 
     try:
@@ -40,17 +40,15 @@ def get_indexes(page_span: int, max_page: int) -> tuple[int, int, int]:
 
 
 def get_offset(o: str | None) -> tuple[int, int]:
-    """This function is used to create the values necessaries for
-    creating the correct pagination. It checks if the `o` variable has been passed
-    correctly to the caller function, `o` represent a chunk of the total amount of elements,
-    `offset` are the elements that will be skipped for the display:
-    100 element are loaded per run, meaning that if we are at
-    chunk 2(the third one) we need to skip the first `offset` * 2
-    (the value of `o`) elements.
-    If `o` wasn't passed or the value has been provided incorrectly a default
-    value of 0 (which is functional) is passed
-    for both `o` and `offset`.
-    """
+    """This function creates the necessary values for correct pagination.
+    It checks whether the `o` parameter (representing a chunk/index of the data)
+    has been passed correctly from the caller.
+
+    The `offset` determines how many elements to skip when displaying results.
+    Since 100 elements are loaded per request, the offset is `100 * o`.
+
+    If `o` is not provided or is invalid, the function defaults both `o` and `offset` to 0,
+    which ensures the default case."""
     if o is None:
         return 0, 0
     try:
