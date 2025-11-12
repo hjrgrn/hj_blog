@@ -3,14 +3,17 @@ from flask import request
 
 
 def get_indexes(page_span: int, max_page: int) -> tuple[int, int, int]:
-    """Returns the correct indexes that will be used to extract posts from
-    the database: `index`(the current page), `prev_pages`(the pages before
-    `index`), `next_pages`(the pages after `index`).
-    This function needs to be called in a route that implement the method `GET`,
-    an eventual `GET` variable called `index` needs to be passed, this will be the current
-    page to display.
-    The parameter `max_page` needs to be obtained by dividing the total amount of comments/posts by
-    the number of comments/posts to be displayed on the document.
+    """Returns the correct indexes for extracting comments/posts from the database:
+    - `index`: the current page (from the GET parameter)
+    - `prev_pages`: list of pages before the current one
+    - `next_pages`: list of pages after the current one
+
+    This function should be called in a GET route that accepts an optional `index` parameter,
+    representing the current page to display. If not provided, it will default to 0.
+
+    The `max_page` parameter must be calculated by dividing the total number of
+    comments/posts by the number of comments/posts to display per page (rounded up
+    to the nearest integer).
     """
     # IDEA: we may refactor this in a function that takes index instead of extracting the index variable from the request itself
     index = None
