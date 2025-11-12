@@ -16,6 +16,7 @@ def get_indexes(page_span: int, max_page: int) -> tuple[int, int, int]:
     to the nearest integer).
     """
     # IDEA: we may refactor this in a function that takes index instead of extracting the index variable from the request itself
+    # TODO: OOP refactoring
     index = None
 
     try:
