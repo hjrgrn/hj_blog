@@ -63,11 +63,6 @@ def blog():
     o = request.args.get("o", None)
     o, offset = get_offset(o)
 
-    # max amount of post that you can have per page
-    max_per_page = MAX_PER_PAGE
-    # amount of pages that will be displayed into the imagination
-    page_span = PAGE_SPAN
-
     # maximum page index, for pagination
     max_page = None
     try:
@@ -78,7 +73,7 @@ def blog():
         if count > 99:
             count = 99
             more_posts = True
-        max_page = count // max_per_page
+        max_page = count // MAX_PER_PAGE
     except TypeError:
         if offset > 0:
             flash("There aren't any more posts.", category="alert-danger")
@@ -102,9 +97,9 @@ def blog():
             profile_pic=profile_pic,
         )
 
-    index, prev_pages, next_pages = get_indexes(page_span, max_page)
+    index, prev_pages, next_pages = get_indexes(PAGE_SPAN, max_page)
 
-    posts = get_posts(index, max_per_page, offset=offset)
+    posts = get_posts(index, MAX_PER_PAGE, offset=offset)
 
     return render_template(
         "main/blog.html",
@@ -119,6 +114,7 @@ def blog():
         more_posts=more_posts,
         profile_pic=profile_pic,
     )
+
 
 @bp.route("/uploads/<string:pic_name>")
 def profile_pictures(pic_name: str):
