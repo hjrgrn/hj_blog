@@ -4,7 +4,7 @@ import sys
 import click
 from flask import Flask, current_app
 
-from .auxiliaries import get_admin_credentials
+from .utils import get_admin_credentials
 from .db import get_db
 
 import logging

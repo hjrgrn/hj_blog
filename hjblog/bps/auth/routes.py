@@ -15,9 +15,9 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from hjblog.bps.user_actions.auxiliaries import Coordinates
+from hjblog.bps.user_actions.utils import Coordinates
 from hjblog.db import get_db
-from hjblog.auxiliaries import login_forbidden, login_required, login_user, logout_user
+from hjblog.utils import login_forbidden, login_required, login_user, logout_user
 from .forms import LogInForm, RegisterForm, VerifyForm, VerifyForm2FA
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")

@@ -9,10 +9,12 @@ def get_posts(
     author_id: int | None = None,
     offset: int | None = None,
 ) -> list[dict[str, str | str, datetime]]:
-    """Given specific parameters returns the correct posts that will be displayed
-    inside a page, if `author_id` is passed only posts relative to that specific
-    author will be taken into consideration, if `offset` is passed first `offset`
-    results will be skipped.
+    """Returns the correct set of posts to display on a page, based on given parameters.
+
+    If `author_id` is provided, only posts by that author are included.
+    If `offset` is specified, the first `offset` results are skipped (used for pagination).
+
+    This enables filtered and paginated retrieval of posts from the database.
     """
     db: Connection = get_db()
     batch: Cursor = None

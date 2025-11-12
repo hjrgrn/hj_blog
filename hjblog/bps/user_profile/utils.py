@@ -89,10 +89,7 @@ def save_picture(
 
 
 def get_profile_pic(pic_name: str | None) -> str:
-    """
-    Obtains the path to the profile picture or the default
-    picture if a picture is not available.
-    """
+    """Get the path to the profile picture, or the default picture if none is set."""
     if pic_name is None:
         # TODO: make default picture configurable server side
         return url_for("static", filename="default_files/anonymous_user.png")

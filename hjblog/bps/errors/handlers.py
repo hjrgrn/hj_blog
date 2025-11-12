@@ -1,6 +1,6 @@
 from flask import g, render_template, Blueprint
 
-from hjblog.bps.user_profile.auxiliaries import get_profile_pic
+from hjblog.bps.user_profile.utils import get_profile_pic
 
 """
 Error handlers
