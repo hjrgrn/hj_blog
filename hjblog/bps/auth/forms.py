@@ -9,6 +9,7 @@ from wtforms.validators import (
     Regexp,
     ValidationError,
 )
+from hjblog.bps.user_profile.utils import validate_unique_username
 from hjblog.db import get_db
 
 
@@ -16,14 +17,7 @@ class RegisterForm(FlaskForm):
     """RegisterForm"""
 
     def validate_username(self, user_to_validate: StringField):
-        db = get_db()
-        user = db.execute(
-            "SELECT id FROM users WHERE (username = ?)", (user_to_validate.data,)
-        ).fetchone()
-        if user:
-            raise ValidationError(
-                f"The username {user_to_validate.data} has already been taken!"
-            )
+        validate_unique_username(user_to_validate)
 
     def validate_email(self, email_to_validate: StringField):
         db = get_db()

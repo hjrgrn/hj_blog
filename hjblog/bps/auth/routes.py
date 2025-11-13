@@ -26,7 +26,7 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 @bp.route("/register", methods=["GET", "POST"])
 @login_forbidden
 def register():
-    """Route responsable for registering the user."""
+    """Route for registering the user."""
 
     form = RegisterForm()
     db = None

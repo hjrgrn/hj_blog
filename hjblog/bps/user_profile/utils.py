@@ -9,6 +9,9 @@ import werkzeug
 import secrets
 
 from werkzeug.utils import secure_filename
+from wtforms import StringField, ValidationError
+
+from hjblog.db import get_db
 
 
 def get_b64encoded_qr_image(data: str) -> str:
@@ -94,3 +97,17 @@ def get_profile_pic(pic_name: str | None) -> str:
         # TODO: make default picture configurable server side
         return url_for("static", filename="default_files/anonymous_user.png")
     return url_for("index.profile_pictures", pic_name=pic_name)
+
+
+def validate_unique_username(user_to_validate: StringField):
+    """Helper function used in `FlaskForm` subclasses.
+    Checks whether the provided username is unique.
+    """
+    db = get_db()
+    user = db.execute(
+        "SELECT id FROM users WHERE (username = ?)", (user_to_validate.data,)
+    ).fetchone()
+    if user:
+        raise ValidationError(
+            f"The username {user_to_validate.data} has already been taken!"
+        )

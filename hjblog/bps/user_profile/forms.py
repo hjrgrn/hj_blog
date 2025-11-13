@@ -11,6 +11,7 @@ from wtforms.validators import (
     ValidationError,
 )
 
+from hjblog.bps.user_profile.utils import validate_unique_username
 from hjblog.db import get_db
 
 DATA_REQUIRED = "This field is required."
@@ -18,14 +19,7 @@ DATA_REQUIRED = "This field is required."
 
 class ChangeName(FlaskForm):
     def validate_username(self, to_validate: StringField):
-        db = get_db()
-        name = db.execute(
-            "SELECT id FROM users WHERE (username = ?)", (to_validate.data,)
-        ).fetchone()
-        if name:
-            raise ValidationError(
-                f"Username {to_validate.data} has already been taken!"
-            )
+        validate_unique_username(to_validate)
 
     username = StringField(
         label="Username",
