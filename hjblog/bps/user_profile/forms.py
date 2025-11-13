@@ -11,8 +11,10 @@ from wtforms.validators import (
     ValidationError,
 )
 
-from hjblog.bps.user_profile.utils import validate_unique_username
-from hjblog.db import get_db
+from hjblog.bps.user_profile.utils import (
+    validate_unique_email,
+    validate_unique_username,
+)
 
 DATA_REQUIRED = "This field is required."
 
@@ -54,12 +56,7 @@ class ChangeCity(FlaskForm):
 
 class ChangeEmail(FlaskForm):
     def validate_email(self, to_validate: StringField):
-        db = get_db()
-        name = db.execute(
-            "SELECT id FROM users WHERE (email = ?)", (to_validate.data,)
-        ).fetchone()
-        if name:
-            raise ValidationError(f"Email {to_validate.data} has already been taken!")
+        validate_unique_email(to_validate)
 
     email = StringField(
         label="Email",

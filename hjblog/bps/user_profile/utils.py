@@ -111,3 +111,17 @@ def validate_unique_username(user_to_validate: StringField):
         raise ValidationError(
             f"The username {user_to_validate.data} has already been taken!"
         )
+
+
+def validate_unique_email(email_to_validate: StringField):
+    """Helper function used in `FlaskForm` subclasses.
+    Checks whether the provided email is unique.
+    """
+    db = get_db()
+    email = db.execute(
+        "SELECT id FROM users WHERE (email = ?)", (email_to_validate.data,)
+    ).fetchone()
+    if email:
+        raise ValidationError(
+            f"The email {email_to_validate.data} is already registered."
+        )

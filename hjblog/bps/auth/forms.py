@@ -7,10 +7,11 @@ from wtforms.validators import (
     Length,
     Optional,
     Regexp,
-    ValidationError,
 )
-from hjblog.bps.user_profile.utils import validate_unique_username
-from hjblog.db import get_db
+from hjblog.bps.user_profile.utils import (
+    validate_unique_email,
+    validate_unique_username,
+)
 
 
 class RegisterForm(FlaskForm):
@@ -20,14 +21,7 @@ class RegisterForm(FlaskForm):
         validate_unique_username(user_to_validate)
 
     def validate_email(self, email_to_validate: StringField):
-        db = get_db()
-        email = db.execute(
-            "SELECT id FROM users WHERE (email = ?)", (email_to_validate.data,)
-        ).fetchone()
-        if email:
-            raise ValidationError(
-                f"The email {email_to_validate.data} is already registered."
-            )
+        validate_unique_email(email_to_validate)
 
     username = StringField(
         label="Username",
