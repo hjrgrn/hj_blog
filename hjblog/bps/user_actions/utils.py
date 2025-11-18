@@ -7,11 +7,18 @@ from hjblog.db import get_db
 
 
 class Coordinates:
-    """Object that associates a city with its relative informations.
-    Includes the city name, latitude, longitude, timezone and a http
-    status code indicative of the success of the operation: a status code
-    comprehended between 200 and 399 will provide the informations required,
-    a status code outside the closed interval will not provide informations.
+    """Class that associates a city with its related information.
+
+    Stores the city name, latitude, longitude, timezone, and an HTTP
+    status code indicating the success of the operation. A status code
+    between 200 and 399 indicates success and includes valid data,
+    a code outside this range indicates failure and no data is provided.
+
+    If the object is initialized correctly and no entry for this city exists in the
+    database, a new entry is added.
+
+    Users can create an instance by providing just the city name, or the city name
+    along with latitude and longitude values.
     """
 
     def __init__(
@@ -40,6 +47,8 @@ class Coordinates:
             self._error(400)
         # Latitude and longitude where provided by the user
         elif (latitude != "") and (longitude != ""):
+            # NOTE: We do not validate that the provided value corresponds to the given city name
+
             # Latitude and/or longitude are too long
             # NOTE: This should not happen if used with the form `hjblog.bps.user_actions.forms.QueryMeteoAPI`
             if len(latitude) > 10 or longitude > 7:
@@ -74,8 +83,8 @@ class Coordinates:
             self._get_coordinates(city)
 
     def _error(self, code: int):
-        """Private method, assaigns informations that are proper
-        of a query that wasn't successful, in other words only the status status code.
+        """Private method that assigns information specific to a query that wasn't
+        successful, specifically, only the status code.
         """
         self.city = None
         self.latitude = None
@@ -84,10 +93,8 @@ class Coordinates:
         self.status_code = code
 
     def _get_coordinates(self, city: str):
-        """# `get_coordinates`
-
-        Fetches the database and eventually the backend for the coordinates
-        of the city required, sets the instance variables accordingly.
+        """Fetches coordinates from the database and, if needed, the backend
+        for the specified city, then sets the instance variables accordingly.
         """
         # examplar response:
         # `{'results': [{'id': 3169070, 'name': 'Rome', 'latitude': 41.89193, 'longitude': 12.51133, 'elevation': 20.0, 'feature_code': 'PPLC', 'country_code': 'IT', 'admin1_id': 3174976, 'admin2_id': 3169069, 'admin3_id': 3169071, 'timezone': 'Europe/Rome', 'population': 2318895, 'postcodes': ['00187'], 'country_id': 3175395, 'country': 'Italy', 'admin1': 'Latium', 'admin2': 'Rome', 'admin3': 'Rome'}], 'generationtime_ms': 2.247095}`
@@ -96,7 +103,7 @@ class Coordinates:
         db = get_db()
         success = self._fetch_db_for_coordinates(city, db)
         # We found the coordinates in the database
-        if success == True:
+        if success:
             return
 
         self._fetch_backend_for_coordinates(city)
@@ -128,11 +135,10 @@ class Coordinates:
             logging.exception(e)
 
     def _fetch_db_for_coordinates(self, city: str, db: sqlite3.Connection) -> bool:
-        """# `_fetch_db_for_coordinates`, `get_coordinates`'s helper
+        """Helper method for `get_coordinates` that attempts to fetch coordinate data from the database.
 
-        Tries to fetch the information required from the database,
-        populates the correct fields with the information and returns `True`, or it
-        doesn't find a suitable entry and returns `False` without adding any information.
+        If a suitable entry is found, it populates the corresponding instance fields and returns True.
+        Otherwise, it returns False without modifying any field.
         """
         try:
             query = db.execute(
@@ -159,11 +165,10 @@ class Coordinates:
         return True
 
     def _fetch_backend_for_coordinates(self, city: str):
-        """# `_fetch_backend_for_coordinates`, `_get_coordinates`'s helper
+        """Helper method for `_get_coordinates` that fetches coordinates from the backend.
 
-        Fetches the backend for coordinates, populates the information with
-        the information fetched if the procedure went fine, otherwise it will
-        populates the fields with error informations.
+        If the request succeeds, it populates the instance fields with the fetched data.
+        If an error occurs, it populates the fields with error information.
         """
         params = {"name": city, "count": 1, "language": "en", "format": "json"}
         response = requests.get(
