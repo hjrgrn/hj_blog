@@ -199,21 +199,29 @@ def logout():
 
 @bp.before_app_request
 def load_logged_in_user():
-    """`before_app_request` registers a function that runs before
-    the view function, no matter what URL is requested, even
-    on views that aren't in this specific blueprint
+    """Loads user information into `g`
     """
-    # TODO: error handling on the database query
+    #NOTE: `before_app_request` registers a function to run before the application
+    # processes any request, regardless of the requested URL or blueprint.
     user_id = session.get("user_id")
 
     if user_id is None:
         g.user = None
     else:
-        g.user = (
-            get_db()
-            .execute(
-                "SELECT id, username, email, city_id, is_admin, is_two_factor_authentication_enabled, secret_token, profile_pic, hash_pass FROM users WHERE id = ?",
-                (user_id,),
+        try:
+            g.user = (
+                get_db()
+                .execute(
+                    "SELECT id, username, email, city_id, is_admin, is_two_factor_authentication_enabled, secret_token, profile_pic, hash_pass FROM users WHERE id = ?",
+                    (user_id,),
+                )
+                .fetchone()
             )
-            .fetchone()
-        )
+        except sqlite3.Error as e:
+            # sqlite3 related Exceptions
+            logging.exception(e)
+            abort(500)
+        except Exception as e:
+            # Unexpected behaviour
+            logging.exception(e)
+            abort(500)
