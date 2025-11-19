@@ -53,6 +53,10 @@ def register():
                     "SELECT id FROM cities WHERE (name = ?)", (coordinates.city,)
                 ).fetchone()["id"]
 
+                # This should not happen
+                if city_id is None:
+                    abort(500)
+
                 db.execute(
                     "INSERT INTO users (username, email, city_id, hash_pass) VALUES (?, ?, ?, ?)",
                     (name, email, city_id, hash_pass),
