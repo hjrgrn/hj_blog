@@ -77,8 +77,7 @@ def get_admin_credentials() -> tuple[str, str, str] | None:
 
 
 def login_user(user_id: int):
-    """Auxilliary function that logs the user in
-    the current session.
+    """Logs the user in the current session.
     """
     session.clear()
     session["user_id"] = user_id
